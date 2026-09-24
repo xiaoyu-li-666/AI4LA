@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import { path } from '../data/stages';
+---
+<Base title="About" description="About AI4LA, a practical guide to AI in landscape architecture.">
+  <div class="shell page-width">
+    <header class="page-intro">
+      <p class="eyebrow">ABOUT AI4LA</p>
+      <h1>A place to test ideas<span class="period">.</span></h1>
+      <p>AI4LA organizes articles by the work landscape architects actually do: research, analysis, concept design, development, visualization, and communication.</p>
+    </header>
+    <div class="prose about-prose">
+      <h2>How to use this site</h2>
+      <p>Start with the stage of your project. Each article focuses on one task and explains where AI can help, what to check yourself, and how to keep the design decision in your hands.</p>
+      <p>The example articles included in this starter website are editable. Replace them with your own tested workflows, examples, screenshots, and references before treating the site as a published resource.</p>
+      <p><a href={path('/#workflow')}>Browse the workflow →</a></p>
+    </div>
+  </div>
+</Base>

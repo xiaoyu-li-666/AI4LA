@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { stages, path } from '../../data/stages';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return stages.map((stage) => ({
+    params: { stage: stage.id },
+    props: {
+      stage,
+      articles: articles.filter((article) => article.data.stage === stage.id)
+        .sort((a, b) => b.data.published.getTime() - a.data.published.getTime()),
+    },
+  }));
+}
+const { stage, articles } = Astro.props;
+---
+<Base title={stage.label} description={stage.description}>
+  <div class="shell page-width">
+    <header class="page-intro">
+      <a class="breadcrumb" href={path('/#workflow')}>← All workflows</a>
+      <p class="eyebrow">WORKFLOW / {stage.number}</p>
+      <h1>{stage.label}<span class="period">.</span></h1>
+      <p>{stage.description}</p>
+    </header>
+    <div class="section-head"><h2>Articles in this stage</h2><span>{articles.length.toString().padStart(2, '0')}</span></div>
+    <div class="article-list roomy">
+      {articles.map((article) => (
+        <a class="article-row" href={path(`/articles/${article.id}/`)}>
+          <span class="row-category">{article.data.published.toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}</span>
+          <span class="row-title">{article.data.title}<small>{article.data.description}</small></span>
+          <span class="row-arrow" aria-hidden="true">↗</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</Base>

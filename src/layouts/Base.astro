@@ -1,0 +1,46 @@
+---
+import '../styles/global.css';
+import { path } from '../data/stages';
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={path('/favicon.svg')} />
+    <title>{title} | AI4LA</title>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="shell nav-wrap">
+        <a class="brand" href={path('/')} aria-label="AI4LA home">
+          <strong>AI4LA<span class="brand-dot">.</span></strong>
+          <span>AI for Landscape Architecture</span>
+        </a>
+        <nav aria-label="Main navigation">
+          <a href={path('/#workflow')}>Workflow</a>
+          <a href={path('/articles/')}>Articles</a>
+          <a href={path('/about/')}>About</a>
+        </nav>
+      </div>
+    </header>
+    <main id="main"><slot /></main>
+    <footer class="site-footer">
+      <div class="shell footer-wrap">
+        <span>AI4LA <span aria-hidden="true">©</span> {new Date().getFullYear()}</span>
+        <span>AI for Landscape Architecture</span>
+        <a href={path('/about/')}>About this site</a>
+      </div>
+    </footer>
+  </body>
+</html>

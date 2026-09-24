@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { stageById, path } from '../../data/stages';
+
+const articles = (await getCollection('articles'))
+  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
+---
+<Base title="Articles" description="Articles on AI methods for landscape architecture, organized by design workflow.">
+  <div class="shell page-width">
+    <header class="page-intro">
+      <p class="eyebrow">THE JOURNAL</p>
+      <h1>All articles<span class="period">.</span></h1>
+      <p>Methods and working notes for each stage of landscape design.</p>
+    </header>
+    <div class="article-list roomy">
+      {articles.map((article) => (
+        <a class="article-row" href={path(`/articles/${article.id}/`)}>
+          <span class="row-category">{stageById[article.data.stage].label}</span>
+          <span class="row-title">{article.data.title}<small>{article.data.description}</small></span>
+          <span class="row-arrow" aria-hidden="true">↗</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</Base>
