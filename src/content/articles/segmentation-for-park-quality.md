@@ -3,6 +3,8 @@ title: "Using SAM 3 to measure landscape elements in park views"
 description: "A practical example of promptable segmentation for measuring visible landscape elements, with checks that keep image coverage separate from park quality."
 stage: analysis
 published: 2026-10-11
+thumbnail: ../../assets/park-quality/tree-segmentation.png
+thumbnailAlt: "A park photograph with SAM 3 tree segmentation overlays and a binary mask."
 ---
 
 Photographs taken along a park route can help landscape architects document what visitors see. Image segmentation adds a quantitative layer to that record: it identifies regions in a photograph and allows us to calculate how much of the image they occupy. In this example, SAM 3 is used to explore concrete elements, trees, lawn, people, and more specific planting characteristics.

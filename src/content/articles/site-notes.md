@@ -3,6 +3,8 @@ title: "Turn field notes into a site inventory"
 description: "A simple way to organize observations before drawing conclusions about a place."
 stage: research
 published: 2026-09-23
+thumbnail: ../../assets/editorial/site-inventory.svg
+thumbnailAlt: "An illustrated site map, field notebook, and observation markers."
 ---
 
 ## Start with observations

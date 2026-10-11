@@ -3,6 +3,8 @@ title: "Where AI fits in a GIS workflow"
 description: "Use AI to clarify analysis steps while keeping the spatial data and validation visible."
 stage: analysis
 published: 2026-09-22
+thumbnail: ../../assets/editorial/gis-workflow.svg
+thumbnailAlt: "An illustration of map layers and a spatial analysis grid."
 ---
 
 ## Define the question first
