@@ -68,6 +68,9 @@ nav a:hover,.quiet-link:hover,.text-link:hover,.breadcrumb:hover,.footer-wrap a:
 .prose p,.prose ul,.prose ol { margin: 0 0 21px; }
 .prose li { padding-left: 3px; margin-bottom: 8px; }
 .prose a { text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.prose img { display: block; width: 100%; max-width: 100%; height: auto; border: 1px solid #dedede; }
+.prose .figure-caption { color: #626262; font-size: .85rem; line-height: 1.55; margin: -9px 0 32px; }
+.prose pre { max-width: 100%; }
 .prose blockquote { margin: 30px 0; padding: 5px 0 5px 23px; border-left: 2px solid #141414; font: 400 1.25rem/1.45 Georgia,'Times New Roman',serif; }
 .prose blockquote p { margin: 0; }
 .prose code { background: #f1f1f1; padding: 2px 4px; font-size: .91em; }
