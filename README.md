@@ -1,7 +1,25 @@
-# AI4LA · AI for Landscape Architecture
+# AI4LA
 
-AI4LA 是一个分享人工智能在景观设计中实际应用的网站，围绕场地调研、数据分析、概念设计、设计深化、可视化和成果表达六个工作流程，整理方法、案例与实践笔记。
+**Exploring practical applications of artificial intelligence in landscape architecture and urban planning.**
 
-网站关注 AI 能帮助完成哪些具体任务，以及如何核查结果、理解方法的局限，让技术服务于有依据的设计判断。
+AI4LA shares methods, case studies, and practical notes on using AI across six workflows:
 
-访问网站：[ai4la.net](https://ai4la.net/)
+- **Site Research**
+- **Data Analysis**
+- **Conceptual Design**
+- **Design Development**
+- **Visualization**
+- **Presentation and Communication**
+
+## Our Approach
+
+We focus on the specific tasks AI can help accomplish, how to verify its outputs, and how to understand its limitations—so that technology supports evidence-based design decisions.
+
+## Established and Maintained By
+
+Founded on **September 15, 2026**, AI4LA is currently maintained and managed by **Xiaoyu Li**.
+
+## Links
+
+- **Visit the website:** [ai4la.net](https://ai4la.net/)
+- **Contact the website administrator:** [Xiaoyu Li](https://xiaoyu-li-666.github.io/xiaoyu-li-666/)
