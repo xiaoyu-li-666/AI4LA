@@ -113,6 +113,11 @@ nav a:hover,.quiet-link:hover,.text-link:hover,.breadcrumb:hover,.footer-wrap a:
 .endnote a { text-decoration: none; }
 .endnote a:hover { text-decoration: underline; }
 .about-prose { padding-top: 0; }
+.workflow-contribution { margin-top: 40px; padding-top: 28px; border-top: 1px solid #c8c8c8; }
+.contribute-button { display: inline-flex; justify-content: center; align-items: center; gap: 22px; max-width: 100%; padding: 15px 22px; background: #141414; border: 1px solid #141414; color: #fff; font-size: .9rem; line-height: 1.4; text-decoration: none; }
+.contribute-button:hover { background: #fff; color: #141414; }
+.workflow-page--empty { min-height: 60vh; display: grid; place-items: center; padding-block: 60px; }
+.workflow-page--empty .workflow-contribution { margin: 0; padding: 0; border: 0; }
 @media(min-width: 751px) and (max-width: 1050px) {
   .home-content { grid-template-columns: 190px minmax(0,1fr); gap: 30px; }
   .featured-articles { grid-template-columns: 1fr; gap: 28px; }

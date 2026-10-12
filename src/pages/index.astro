@@ -45,7 +45,7 @@ const latest = (await getCollection('articles'))
           </article>
         ))}
       </div>
-      <div class="article-list more-articles">
+      {latest.length > 3 && <div class="article-list more-articles">
         {latest.slice(3).map((article) => (
           <a class="article-row" href={path(`/articles/${article.id}/`)}>
             <span class="row-category">{stageById[article.data.stage].label}</span>
@@ -53,7 +53,7 @@ const latest = (await getCollection('articles'))
             <span class="row-arrow" aria-hidden="true">↗</span>
           </a>
         ))}
-      </div>
+      </div>}
     </section>
     <aside class="section workflow-sidebar" id="workflow" aria-labelledby="workflow-heading">
       <div class="section-head">

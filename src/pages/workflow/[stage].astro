@@ -15,9 +15,11 @@ export async function getStaticPaths() {
   }));
 }
 const { stage, articles } = Astro.props;
+const contributionHref = `mailto:lxy819457986@gmail.com?subject=${encodeURIComponent(`AI4LA contribution - ${stage.label}`)}`;
 ---
 <Base title={stage.label} description={stage.description}>
-  <div class="shell page-width">
+  <div class:list={['shell', 'page-width', 'workflow-page', { 'workflow-page--empty': articles.length === 0 }]}>
+    {articles.length > 0 && <>
     <header class="page-intro">
       <a class="breadcrumb" href={path('/#workflow')}>← All workflows</a>
       <p class="eyebrow">WORKFLOW / {stage.number}</p>
@@ -28,11 +30,17 @@ const { stage, articles } = Astro.props;
     <div class="article-list roomy">
       {articles.map((article) => (
         <a class="article-row" href={path(`/articles/${article.id}/`)}>
-          <span class="row-category">{article.data.published.toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}</span>
+          <span class="row-category">{article.data.published.toLocaleDateString('en-US', { year: 'numeric', month: 'short', timeZone: 'UTC' })}</span>
           <span class="row-title">{article.data.title}<small>{article.data.description}</small></span>
           <span class="row-arrow" aria-hidden="true">↗</span>
         </a>
       ))}
+    </div>
+    </>}
+    <div class="workflow-contribution">
+      <a class="contribute-button" href={contributionHref}>
+        <span>contribute to this website</span><span aria-hidden="true">↗</span>
+      </a>
     </div>
   </div>
 </Base>
