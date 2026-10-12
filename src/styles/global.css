@@ -96,6 +96,12 @@ nav a:hover,.quiet-link:hover,.text-link:hover,.breadcrumb:hover,.footer-wrap a:
 .prose a { text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .prose img { display: block; width: 100%; max-width: 100%; height: auto; border: 1px solid #dedede; }
 .prose .figure-caption { color: #626262; font-size: .85rem; line-height: 1.55; margin: -9px 0 32px; }
+.prose .article-table { max-width: 100%; overflow-x: auto; margin: 25px 0; }
+.prose .article-table:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.prose table { width: 100%; border-collapse: collapse; font-size: .9rem; line-height: 1.5; }
+.prose th,.prose td { padding: 13px 15px; border-bottom: 1px solid #d4d4d4; text-align: left; vertical-align: top; }
+.prose th { background: #f2f2f2; font-weight: 600; }
+.prose .prompt-template { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .85rem; line-height: 1.7; }
 .prose pre { max-width: 100%; }
 .prose blockquote { margin: 30px 0; padding: 5px 0 5px 23px; border-left: 2px solid #141414; font: 400 1.25rem/1.45 Georgia,'Times New Roman',serif; }
 .prose blockquote p { margin: 0; }
