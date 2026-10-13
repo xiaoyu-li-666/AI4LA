@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import { path, stageById } from '../data/stages';
+import defaultThumbnail from '../assets/editorial/gis-workflow.svg';
+
+interface Props {
+  article: CollectionEntry<'articles'>;
+}
+const { article } = Astro.props;
+---
+<article class="featured-article">
+  <a class="featured-link" href={path(`/articles/${article.id}/`)}>
+    <div class="article-thumbnail">
+      <Image src={article.data.thumbnail || defaultThumbnail} alt={article.data.thumbnailAlt || `Illustration for ${article.data.title}`} width={640} height={400} loading="lazy" />
+    </div>
+    <span class="row-category">{stageById[article.data.stage].label}</span>
+    <h3>{article.data.title}</h3>
+    <p>{article.data.description}</p>
+    <div class="featured-meta">
+      <time datetime={article.data.published.toISOString()}>{article.data.publishedLabel || article.data.published.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</time>
+      <span aria-hidden="true">↗</span>
+    </div>
+  </a>
+</article>

@@ -1,15 +1,16 @@
 ---
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
-import { stages, path, stageById } from '../data/stages';
-import { Image } from 'astro:assets';
-import defaultThumbnail from '../assets/editorial/gis-workflow.svg';
+import { stages, path } from '../data/stages';
+import ArticleCard from '../components/ArticleCard.astro';
 
 const latest = (await getCollection('articles'))
-  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
-  .slice(0, 4);
+  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
+const initialArticles = latest.slice(0, 6);
+const remainingArticles = latest.slice(6);
+const batches = Array.from({ length: Math.ceil(remainingArticles.length / 3) }, (_, index) => remainingArticles.slice(index * 3, index * 3 + 3));
 ---
-<Base title="AI for Landscape Architecture" description="Practical articles on using AI throughout the landscape architecture design workflow.">
+<Base title="AI for Landscape Architecture" description="Practical articles on using AI throughout the landscape architecture design workflow." bodyClass="home-page">
   <div class="shell">
     <section class="intro" aria-labelledby="intro-heading">
       <img class="hero-scenes" src={path('/images/home-scenes.svg')} alt="" aria-hidden="true" width="900" height="400" fetchpriority="high" />
@@ -25,35 +26,21 @@ const latest = (await getCollection('articles'))
     <section class="section latest-section" id="latest" aria-labelledby="latest-heading">
       <div class="section-head">
         <h2 id="latest-heading">Latest articles</h2>
-        <a class="quiet-link" href={path('/articles/')}>All articles <span aria-hidden="true">↗</span></a>
+        <span>Newest first</span>
       </div>
-      <div class="featured-articles">
-        {latest.slice(0, 3).map((article) => (
-          <article class="featured-article">
-            <a class="featured-link" href={path(`/articles/${article.id}/`)}>
-              <div class="article-thumbnail">
-                <Image src={article.data.thumbnail || defaultThumbnail} alt={article.data.thumbnailAlt || `Illustration for ${article.data.title}`} width={640} height={400} loading="lazy" />
-              </div>
-              <span class="row-category">{stageById[article.data.stage].label}</span>
-              <h3>{article.data.title}</h3>
-              <p>{article.data.description}</p>
-              <div class="featured-meta">
-                <time datetime={article.data.published.toISOString()}>{article.data.publishedLabel || article.data.published.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</time>
-                <span aria-hidden="true">↗</span>
-              </div>
-            </a>
-          </article>
-        ))}
+      <div class="featured-articles" id="latest-feed" data-latest-feed data-initial-count={initialArticles.length} data-total-count={latest.length}>
+        {initialArticles.map((article) => <ArticleCard article={article} />)}
       </div>
-      {latest.length > 3 && <div class="article-list more-articles">
-        {latest.slice(3).map((article) => (
-          <a class="article-row" href={path(`/articles/${article.id}/`)}>
-            <span class="row-category">{stageById[article.data.stage].label}</span>
-            <span class="row-title">{article.data.title}</span>
-            <span class="row-arrow" aria-hidden="true">↗</span>
-          </a>
-        ))}
-      </div>}
+      {batches.map((batch) => (
+        <template data-latest-batch>{batch.map((article) => <ArticleCard article={article} />)}</template>
+      ))}
+      <div class="latest-loader" data-latest-loader>
+        <p class="latest-status" data-latest-status role="status" aria-live="polite" aria-atomic="true">
+          {initialArticles.length < latest.length ? `Showing ${initialArticles.length} of ${latest.length} articles` : `${latest.length} articles`}
+        </p>
+        {batches.length > 0 && <button class="latest-load-more" data-latest-load-more type="button" aria-controls="latest-feed" hidden>Load more <span aria-hidden="true">↓</span></button>}
+        {batches.length > 0 && <noscript><a class="quiet-link" href={path('/articles/')}>Browse all articles ↗</a></noscript>}
+      </div>
     </section>
     <aside class="section workflow-sidebar" id="workflow" aria-labelledby="workflow-heading">
       <div class="section-head">
@@ -71,4 +58,53 @@ const latest = (await getCollection('articles'))
     </aside>
     </div>
   </div>
+  <a class="all-articles-floating" href={path('/articles/')}>All articles <span aria-hidden="true">↗</span></a>
 </Base>
+
+<script>
+  const feed = document.querySelector<HTMLElement>('[data-latest-feed]');
+  const loader = document.querySelector<HTMLElement>('[data-latest-loader]');
+  const button = document.querySelector<HTMLButtonElement>('[data-latest-load-more]');
+  const status = document.querySelector<HTMLElement>('[data-latest-status]');
+  const batches = Array.from(document.querySelectorAll<HTMLTemplateElement>('[data-latest-batch]'));
+
+  if (feed && loader && button && status && batches.length) {
+    let nextBatch = 0;
+    let loaded = Number(feed.dataset.initialCount);
+    const total = Number(feed.dataset.totalCount);
+    let observer: IntersectionObserver | undefined;
+
+    const loadMore = (manual = false) => {
+      const template = batches[nextBatch];
+      if (!template) return;
+      observer?.unobserve(loader);
+      const fragment = template.content.cloneNode(true) as DocumentFragment;
+      const firstNewLink = fragment.querySelector<HTMLAnchorElement>('.featured-link');
+      loaded += fragment.querySelectorAll('.featured-article').length;
+      feed.append(fragment);
+      template.remove();
+      nextBatch += 1;
+
+      if (nextBatch === batches.length) {
+        observer?.disconnect();
+        if (manual) firstNewLink?.focus({ preventScroll: true });
+        button.hidden = true;
+        status.textContent = `All ${total} articles loaded.`;
+      } else {
+        status.textContent = `Showing ${loaded} of ${total} articles`;
+        requestAnimationFrame(() => {
+          if (nextBatch < batches.length) observer?.observe(loader);
+        });
+      }
+    };
+
+    button.hidden = false;
+    button.addEventListener('click', () => loadMore(true));
+    if ('IntersectionObserver' in window) {
+      observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) loadMore();
+      }, { rootMargin: '0px 0px 120px 0px' });
+      observer.observe(loader);
+    }
+  }
+</script>

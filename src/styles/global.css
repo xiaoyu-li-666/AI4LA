@@ -62,6 +62,15 @@ nav a:hover,.quiet-link:hover,.text-link:hover,.breadcrumb:hover,.footer-wrap a:
 .featured-link>p { color: #626262; font-size: .85rem; line-height: 1.6; margin: 0 0 25px; }
 .featured-meta { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #d4d4d4; padding-top: 13px; margin-top: auto; color: #666; font-size: .7rem; }
 .featured-meta>span { color: #141414; font-size: 1.1rem; }
+.latest-loader { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; margin-top: 28px; padding-top: 20px; border-top: 1px solid #d4d4d4; }
+.latest-status { margin: 0; color: #626262; font-size: .8rem; line-height: 1.5; }
+.latest-load-more { display: inline-flex; align-items: center; gap: 25px; min-height: 44px; padding: 11px 17px; border: 1px solid #141414; background: #fff; color: #141414; font: inherit; font-size: .82rem; cursor: pointer; }
+.latest-load-more[hidden] { display: none; }
+.latest-load-more:hover { background: #f2f2f2; }
+.latest-load-more:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.all-articles-floating { position: fixed; z-index: 5; right: max(24px, calc((100vw - 1200px) / 2)); bottom: max(24px, calc(env(safe-area-inset-bottom) + 16px)); display: inline-flex; align-items: center; justify-content: space-between; gap: 28px; min-height: 48px; padding: 14px 20px; border: 1px solid #141414; background: #141414; color: #fff; box-shadow: 0 4px 16px rgb(0 0 0 / .08); font-size: .85rem; text-decoration: none; }
+.all-articles-floating:hover { background: #fff; color: #141414; }
+.home-page .site-footer { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
 .more-articles { margin-top: 34px; }
 .more-articles .article-row { grid-template-columns: 130px 1fr 20px; gap: 15px; }
 .tile-top { display: flex; justify-content: space-between; gap: 10px; font-size: .75rem; color: #5b5b5b; text-transform: uppercase; letter-spacing: .07em; }
@@ -155,6 +164,7 @@ nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: 
 }
 @media(max-width: 750px) {
   .shell { width: min(100% - 38px, 1200px); }
+  .all-articles-floating { right: 19px; }
   .prose .animation-example,.prose .animation-example + .figure-caption { width: calc(100vw - 38px); }
   .prose .svg-example,.prose .svg-example + .figure-caption { width: calc(100vw - 38px); }
   .nav-wrap { min-height: 78px; }
