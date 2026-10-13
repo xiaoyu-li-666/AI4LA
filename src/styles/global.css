@@ -99,6 +99,10 @@ nav a:hover,.quiet-link:hover,.text-link:hover,.breadcrumb:hover,.footer-wrap a:
 .prose .animation-example { width: min(1092px, calc(100vw - 68px)); margin: 30px 0 18px; }
 .prose .animation-example iframe { display: block; width: 100%; min-height: 700px; border: 1px solid #cbd7d9; }
 .prose .animation-example + .figure-caption { width: min(1092px, calc(100vw - 68px)); max-width: none; }
+.prose .svg-example { width: min(1092px, calc(100vw - 68px)); overflow-x: auto; margin: 30px 0 18px; }
+.prose .svg-example:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.prose .svg-example img { min-width: 680px; }
+.prose .svg-example + .figure-caption { width: min(1092px, calc(100vw - 68px)); max-width: none; }
 .prose .article-table { max-width: 100%; overflow-x: auto; margin: 25px 0; }
 .prose .article-table:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 .prose table { width: 100%; border-collapse: collapse; font-size: .9rem; line-height: 1.5; }
@@ -152,6 +156,7 @@ nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: 
 @media(max-width: 750px) {
   .shell { width: min(100% - 38px, 1200px); }
   .prose .animation-example,.prose .animation-example + .figure-caption { width: calc(100vw - 38px); }
+  .prose .svg-example,.prose .svg-example + .figure-caption { width: calc(100vw - 38px); }
   .nav-wrap { min-height: 78px; }
   .brand>span { display: none; }
   .intro { min-height: 370px; padding: 36px 0 30px; }
