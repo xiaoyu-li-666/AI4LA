@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How a delta takes shape · AI4LA</title>
+  <style>
+    :root { color-scheme: light; --ink: #172f38; --muted: #53676e; --line: #cbd7d9; --water: #287caa; --sediment: #925a35; --land: #eee3c9; font-family: Arial, "Microsoft YaHei", sans-serif; color: var(--ink); background: #fff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 1260px; margin: auto; padding: 25px 24px 22px; }
+    header { display: flex; align-items: flex-start; justify-content: space-between; gap: 22px; }
+    .eyebrow { margin: 0 0 9px; font-size: 11px; font-weight: 600; letter-spacing: .13em; color: var(--muted); }
+    h1 { font: 400 clamp(25px, 3vw, 35px)/1.2 Georgia, "Microsoft YaHei", serif; margin: 0 0 11px; }
+    .intro { max-width: 850px; margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); }
+    button, select, input { font: inherit; }
+    button, select { border: 1px solid var(--line); border-radius: 4px; background: #fff; color: var(--ink); min-height: 40px; padding: 8px 14px; cursor: pointer; }
+    button:hover { background: #f0f5f5; }
+    button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid #287caa; outline-offset: 3px; }
+    button:disabled { opacity: .5; cursor: default; }
+    #play { background: var(--ink); color: #fff; border-color: var(--ink); }
+    #language { flex-shrink: 0; font-size: 13px; }
+    .legend { display: flex; gap: 20px; flex-wrap: wrap; padding: 17px 0 14px; font-size: 12px; }
+    .legend span { display: inline-flex; gap: 7px; align-items: center; }
+    .swatch { width: 17px; height: 11px; display: inline-block; border: 1px solid #a4b2b4; }
+    .swatch.flow { background: var(--water); height: 3px; border: 0; }
+    .swatch.sediment { width: 7px; height: 7px; background: var(--sediment); border: 0; border-radius: 50%; }
+    .swatch.submerged { background: repeating-linear-gradient(135deg, #e7d3b6 0 3px, #b79168 3px 4px); }
+    .swatch.land { background: var(--land); }
+    .panels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .panel { border: 1px solid var(--line); border-top: 3px solid var(--line); border-radius: 3px; min-width: 0; padding: 16px 12px 13px; background: #fff; }
+    .panel.is-active { border-top-color: var(--water); }
+    .panel-top { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted); gap: 10px; }
+    .number { letter-spacing: .1em; }
+    .status { font-size: 11px; }
+    h2 { font-size: 18px; font-weight: 600; line-height: 1.3; margin: 10px 0 12px; }
+    svg { width: 100%; display: block; }
+    svg text { font-family: Arial, "Microsoft YaHei", sans-serif; fill: #334e58; font-size: 12px; }
+    .plan { background: #f5fafc; border: 1px solid #e4edef; }
+    .section { margin-top: 6px; }
+    .view-label { color: var(--muted); font-size: 11px; margin: 0 0 5px; }
+    .explanation { font-size: 13px; line-height: 1.65; margin: 9px 0 0; min-height: 64px; }
+    .controls { border-top: 1px solid var(--line); margin-bottom: 21px; padding-top: 16px; }
+    .buttons { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .speed-label { margin-left: auto; display: flex; gap: 8px; align-items: center; font-size: 12px; }
+    #speed { min-height: 36px; padding: 6px 8px; font-size: 12px; }
+    .timeline { margin-top: 16px; }
+    .timeline label { display: block; font-size: 12px; margin-bottom: 5px; }
+    #progress { width: 100%; accent-color: var(--water); cursor: pointer; height: 24px; }
+    .ticks { display: grid; grid-template-columns: repeat(3, 1fr); font-size: 11px; color: var(--muted); gap: 12px; }
+    .ticks span:last-child { text-align: right; }
+    .ticks span:nth-child(2) { text-align: center; }
+    #announcement { margin: 13px 0 0; font-size: 12px; color: var(--muted); min-height: 19px; }
+    footer { margin-top: 13px; padding-top: 13px; border-top: 1px solid var(--line); font-size: 11px; line-height: 1.65; color: var(--muted); }
+    noscript { display: block; padding: 20px; border: 1px solid var(--line); }
+    @media (max-width: 800px) { main { padding: 20px 16px; } .panels { grid-template-columns: 1fr; } .panel { max-width: 530px; width: 100%; margin: auto; } .explanation { min-height: 0; } h1 { font-size: 26px; } .intro { font-size: 13px; } .legend { gap: 12px; } .speed-label { margin-left: 0; } }
+    @media (max-width: 420px) { header { gap: 10px; } #language { padding: 8px; } h1 { font-size: 24px; } .buttons button { padding: 8px 11px; } .ticks { font-size: 10px; } }
+    @media print { .controls, #language { display: none; } .panels { grid-template-columns: repeat(3, 1fr); } main { padding: 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">AI4LA / COMMUNICATION</p>
+        <h1 data-i18n="title">三角洲如何形成</h1>
+        <p class="intro" data-i18n="intro">在泥沙供应充足、波浪与潮汐作用较弱的条件下，观察输沙、沉积累积与分流之间的关系。</p>
+      </div>
+      <button id="language" type="button" aria-label="Switch to English">English</button>
+    </header>
+    <div class="legend" aria-label="图例">
+      <span><i class="swatch flow" aria-hidden="true"></i><span data-i18n="flow">水流方向</span></span>
+      <span><i class="swatch sediment" aria-hidden="true"></i><span data-i18n="sediment">泥沙颗粒</span></span>
+      <span><i class="swatch submerged" aria-hidden="true"></i><span data-i18n="submerged">水下沉积</span></span>
+      <span><i class="swatch land" aria-hidden="true"></i><span data-i18n="land">露出水面的陆地</span></span>
+    </div>
+    <div class="controls">
+      <div class="buttons">
+        <button id="play" type="button" data-i18n="play">播放</button>
+        <button id="pause" type="button" data-i18n="pause" disabled>暂停</button>
+        <button id="reset" type="button" data-i18n="reset">重置</button>
+        <label class="speed-label" for="speed"><span data-i18n="speed">播放速度</span>
+          <select id="speed"><option value="0.6" data-i18n="slow">较慢</option><option value="1" selected data-i18n="normal">正常</option><option value="1.5" data-i18n="fast">较快</option></select>
+        </label>
+      </div>
+      <div class="timeline">
+        <label for="progress" data-i18n="timeline">拖动查看过程（示意顺序）</label>
+        <input id="progress" type="range" min="0" max="300" value="0" step="1" aria-valuetext="输沙入海：起点">
+        <div class="ticks"><span data-i18n="stage1">① 输沙入海</span><span data-i18n="stage2">② 沉积累积</span><span data-i18n="stage3">③ 分流与扩展</span></div>
+      </div>
+      <p id="announcement" role="status" aria-live="polite"></p>
+    </div>
+    <div class="panels" id="panels"></div>
+    <noscript>请启用 JavaScript 播放动画。这个教学示意依次展示泥沙入海、水下堆积和绕沙坝分流。Enable JavaScript to play the transport, deposition, and branching sequence.</noscript>
+    <footer data-i18n="disclaimer">地貌过程示意，时间与尺度经过简化。流线与沉积路径预先设定，不是水动力或泥沙输移模拟；没有表达侵蚀、潮汐、波浪或压实。A—A′ 为各图相同的中心线剖面，第三阶段两侧新河口的沉积见平面图。</footer>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const words = {
+        zh: {
+          title: '三角洲如何形成', intro: '在泥沙供应充足、波浪与潮汐作用较弱的条件下，观察输沙、沉积累积与分流之间的关系。',
+          flow: '水流方向', sediment: '泥沙颗粒', submerged: '水下沉积', land: '露出水面的陆地',
+          play: '播放', replay: '重新播放', pause: '暂停', reset: '重置', speed: '播放速度', slow: '较慢', normal: '正常', fast: '较快',
+          timeline: '拖动查看过程（示意顺序）', stage1: '① 输沙入海', stage2: '② 沉积累积', stage3: '③ 分流与扩展',
+          headings: ['输沙入海', '沉积累积', '分流与扩展'],
+          descriptions: ['水流进入开阔水域后扩散、减速，部分泥沙沉降并留在海床。', '持续输入的泥沙叠加在已有沉积上，水下河口沙坝逐渐抬升、向海延伸。', '水流绕过抬升的沙坝，形成分流；泥沙在两侧新河口继续累积。'],
+          plan: '平面图 · 相同视角', section: 'A—A′ 中心线剖面 · 相同比例', river: '河流', sea: '海域', bar: '河口沙坝', branches: '分流', seaLevel: '水面', bed: '原海床',
+          ready: '待播放', inherited: '承接前一阶段', running: '播放中', paused: '已暂停', complete: '阶段完成', start: '起点', end: '终点',
+          announceReady: '点击播放，依次观察三个阶段；也可拖动查看任意状态。', announcePause: '已暂停，可以对照平面与剖面检查沉积位置。', announceEnd: '过程结束。已沉积的泥沙保留在原处，点击重新播放可再次观察。',
+          disclaimer: '地貌过程示意，时间与尺度经过简化。流线与沉积路径预先设定，不是水动力或泥沙输移模拟；没有表达侵蚀、潮汐、波浪或压实。A—A′ 为各图相同的中心线剖面，第三阶段两侧新河口的沉积见平面图。',
+          svgDescriptions: ['河流携带泥沙进入海域，流线扩散，剖面显示颗粒向海床沉降。', '保留已沉积的泥沙，增加新的沉积；剖面显示沙坝仍主要处于水下。', '保留之前的沙坝，水流向两侧分开；两侧新河口逐步形成新的沉积体。']
+        },
+        en: {
+          title: 'How a delta takes shape', intro: 'Follow sediment delivery, accumulation, and branching with abundant sediment supply and weak wave and tidal influence.',
+          flow: 'Flow direction', sediment: 'Sediment particles', submerged: 'Submerged deposits', land: 'Land above water',
+          play: 'Play', replay: 'Replay', pause: 'Pause', reset: 'Reset', speed: 'Playback speed', slow: 'Slower', normal: 'Normal', fast: 'Faster',
+          timeline: 'Drag to inspect the sequence (schematic order)', stage1: '① Sediment delivery', stage2: '② Accumulation', stage3: '③ Branching & growth',
+          headings: ['Sediment delivery', 'Accumulation', 'Branching & growth'],
+          descriptions: ['Flow spreads and slows beyond the river mouth; some sediment settles and remains on the bed.', 'New sediment builds on earlier deposits, raising and extending a submerged mouth bar.', 'Flow divides around the raised bar; deposition continues at the two new mouths.'],
+          plan: 'Plan view · same viewpoint', section: 'A—A′ centerline section · same scale', river: 'River', sea: 'Sea', bar: 'Mouth bar', branches: 'Branches', seaLevel: 'Water level', bed: 'Original bed',
+          ready: 'Ready', inherited: 'Inherited terrain', running: 'Playing', paused: 'Paused', complete: 'Complete', start: 'Start', end: 'End',
+          announceReady: 'Play the three stages in order, or drag to inspect any state.', announcePause: 'Paused. Compare the plan and section to inspect where sediment accumulates.', announceEnd: 'Sequence complete. Deposited sediment remains in place. Select Replay to watch again.',
+          disclaimer: 'Geomorphic process schematic; time and scale are simplified. Flow and deposition paths are prescribed, not a hydrodynamic or sediment-transport simulation. Erosion, tides, waves, and compaction are omitted. A—A′ is the same centerline section in each panel; deposits at the two new mouths in stage 3 appear in plan view.',
+          svgDescriptions: ['A sediment-bearing river enters the sea. Flow spreads, and the section shows particles settling onto the bed.', 'Earlier deposits remain while new sediment accumulates. The section shows a predominantly submerged mouth bar.', 'The existing bar remains as flow divides around it and new deposits accumulate at two downstream mouths.']
+        }
+      };
+      let lang = new URLSearchParams(location.search).get('lang') === 'zh' ? 'zh' : 'en';
+      const $ = (id) => document.getElementById(id);
+      const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+      const lerp = (a, b, f) => a + (b - a) * f;
+      const smooth = (v) => { const f = clamp(v, 0, 1); return f * f * (3 - 2 * f); };
+      const fmt = (v) => v.toFixed(2);
+      const ns = 'http://www.w3.org/2000/svg';
+      const panels = [];
+      let time = 0;
+      let playing = false;
+      let frame = 0;
+      let lastTimestamp = null;
+      let lastDraw = 0;
+      let lastStage = -1;
+      const totalTime = 30;
+      const step = 5, nx = 73, ny = 43, gridSize = nx * ny;
+      const depth = (y) => 34 + 0.035 * (y - 90);
+      const packets = [];
+      // Prescribed teaching events, not calculated sediment fluxes or physical times.
+      for (let i = 0; i < 180; i++) {
+        const stage = i < 24 ? 0 : i < 80 ? 1 : 2;
+        const local = i - [0, 24, 80][stage];
+        const count = [24, 56, 100][stage];
+        const side = i < 80 ? 0 : (i % 2 === 0 ? -1 : 1);
+        const phase = i * 2.399963;
+        const radius = 4 + ((i * 7) % 13);
+        const x = (i < 80 ? 180 : 180 + side * (i < 100 ? 34 : 62)) + Math.cos(phase) * radius;
+        const y = (i < 80 ? 145 + (i / 100) * 22 : i < 100 ? 167 : 224 + ((i - 100) / 80) * 15) + Math.sin(phase) * radius * 0.65;
+        packets.push({ x, y, side, stage, due: stage * 10 + 2.2 + local * (7.6 / Math.max(1, count - 1)), weight: i < 80 ? 0.43 : i < 100 ? 1.1 : 1.5, sigma: i < 100 ? 29 : 21 });
+      }
+      // Each terrain snapshot adds a packet to the previous snapshot. No deposit is removed.
+      const terrain = [new Float32Array(gridSize)];
+      for (const packet of packets) {
+        const next = new Float32Array(terrain[terrain.length - 1]);
+        for (let row = 0; row < ny; row++) {
+          for (let col = 0; col < nx; col++) {
+            const dx = col * step - packet.x, dy = 90 + row * step - packet.y;
+            next[row * nx + col] += packet.weight * Math.exp(-(dx * dx + dy * dy) / (2 * packet.sigma * packet.sigma));
+          }
+        }
+        terrain.push(next);
+      }
+      const packetProgress = (packet, t) => clamp((t - packet.due + 0.22) / 0.22, 0, 1);
+      function fieldAt(t) {
+        let count = 0;
+        while (count < packets.length && t >= packets[count].due) count++;
+        const field = new Float32Array(terrain[count]);
+        if (count < packets.length) {
+          const f = packetProgress(packets[count], t);
+          if (f > 0) for (let j = 0; j < gridSize; j++) field[j] = lerp(terrain[count][j], terrain[count + 1][j], f);
+        }
+        return { field, count };
+      }
+      // Marching-squares contours use the same additive terrain as the section.
+      function contour(field, threshold, emergence = false) {
+        const cases = [[], [[3,0]], [[0,1]], [[3,1]], [[1,2]], [[3,0],[1,2]], [[0,2]], [[3,2]], [[2,3]], [[0,2]], [[0,1],[2,3]], [[1,2]], [[3,1]], [[0,1]], [[3,0]], []];
+        const graph = new Map();
+        const coordinates = new Map();
+        const value = (col, row) => field[row * nx + col] - (emergence ? depth(90 + row * step) : threshold);
+        function connect(a, b) { if (!graph.has(a)) graph.set(a, []); graph.get(a).push(b); }
+        for (let row = 0; row < ny - 1; row++) {
+          for (let col = 0; col < nx - 1; col++) {
+            const v = [value(col,row), value(col+1,row), value(col+1,row+1), value(col,row+1)];
+            const mask = v.reduce((sum, n, i) => sum + (n > 0 ? 1 << i : 0), 0);
+            const vertices = [[col*step,90+row*step],[(col+1)*step,90+row*step],[(col+1)*step,90+(row+1)*step],[col*step,90+(row+1)*step]];
+            const keys = [`h${row}:${col}`,`v${row}:${col+1}`,`h${row+1}:${col}`,`v${row}:${col}`];
+            for (const pair of cases[mask]) {
+              for (const edge of pair) {
+                const a = edge, b = (edge + 1) % 4;
+                const f = v[a] / (v[a] - v[b]);
+                coordinates.set(keys[edge], [lerp(vertices[a][0],vertices[b][0],f), lerp(vertices[a][1],vertices[b][1],f)]);
+              }
+              connect(keys[pair[0]],keys[pair[1]]); connect(keys[pair[1]],keys[pair[0]]);
+            }
+          }
+        }
+        const visited = new Set();
+        let path = '';
+        for (const start of graph.keys()) {
+          if (visited.has(start)) continue;
+          let node = start, previous = null, points = [];
+          while (node && !visited.has(node)) {
+            visited.add(node); points.push(coordinates.get(node));
+            const next = graph.get(node).find((candidate) => candidate !== previous);
+            previous = node; node = next;
+          }
+          if (points.length >= 3) path += 'M' + points.map((p) => `${fmt(p[0])},${fmt(p[1])}`).join('L') + 'Z';
+        }
+        return path;
+      }
+      function createPanel(stage) {
+        const article = document.createElement('section');
+        article.className = 'panel'; article.dataset.stage = stage;
+        article.innerHTML = `
+          <div class="panel-top"><span class="number">0${stage + 1}</span><span class="status"></span></div>
+          <h2></h2><p class="view-label plan-label"></p>
+          <svg class="plan" viewBox="0 0 360 310" role="img" aria-labelledby="plan-title-${stage} plan-desc-${stage}">
+            <title id="plan-title-${stage}"></title><desc id="plan-desc-${stage}"></desc>
+            <defs>
+              <pattern id="hatch-${stage}" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="7" height="7" fill="#e7d3b6"/><line x1="0" y1="0" x2="0" y2="7" stroke="#bc9570" stroke-width="1"/></pattern>
+              <marker id="arrow-${stage}" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#287caa"/></marker>
+            </defs>
+            <rect width="360" height="310" fill="#eef7fb"/>
+            <path d="M0,0 H159 C159,33 152,65 158,90 H0Z M360,0 H201 C201,33 208,65 202,90 H360Z" fill="#eee3c9" stroke="#bbae90" stroke-width="1"/>
+            <path class="deposit-outline" fill="#dfc5a2" fill-opacity=".32"/>
+            <path class="submerged-terrain" fill="url(#hatch-${stage})" fill-opacity=".8"/>
+            <path class="emerged-terrain" fill="#eee3c9" stroke="#aa9270" stroke-width="1.2"/>
+            <g class="settled-particles"></g>
+            <path d="M180,13 L180,296" fill="none" stroke="#71898f" stroke-width="1" stroke-dasharray="4 5" opacity=".65"/>
+            <text x="205" y="23">A</text><text x="191" y="299">A′</text>
+            <g class="flow-lines" fill="none" stroke="#287caa" stroke-width="2.5" marker-end="url(#arrow-${stage})"></g>
+            <g class="moving-particles"></g>
+            <text class="river-label" x="53" y="44"></text><text class="sea-label" x="289" y="111"></text>
+            <g class="bar-callout"><line x1="213" y1="167" x2="263" y2="167" stroke="#8b7055"/><text class="bar-label" x="268" y="171"></text></g>
+            <g class="branch-callout"><line x1="94" y1="211" x2="116" y2="191" stroke="#287caa"/><text class="branch-label" x="27" y="220"></text></g>
+          </svg>
+          <p class="view-label section-label" style="margin-top:12px"></p>
+          <svg class="section" viewBox="0 0 360 132" role="img" aria-labelledby="section-title-${stage}">
+            <title id="section-title-${stage}"></title>
+            <defs><clipPath id="above-water-${stage}"><rect x="20" y="0" width="320" height="42"/></clipPath></defs>
+            <rect x="20" y="42" width="320" height="80" fill="#eef7fb"/>
+            <path class="original-bed" fill="#e2e0da" stroke="#929792" stroke-width="1"/>
+            <path class="section-deposits" fill="#bb9267"/>
+            <path class="section-land" fill="#eee3c9" clip-path="url(#above-water-${stage})"/>
+            <g class="settling-particles"></g>
+            <path class="bed-profile" fill="none" stroke="#936c45" stroke-width="1.5"/>
+            <line x1="20" y1="42" x2="340" y2="42" stroke="#287caa" stroke-width="1.2"/>
+            <text x="21" y="18">A</text><text x="325" y="18">A′</text>
+            <text class="water-label" x="253" y="35"></text><text class="bed-label" x="238" y="120"></text>
+          </svg>
+          <p class="explanation"></p>`;
+        $('panels').append(article);
+        const plan = article.querySelector('.plan');
+        const section = article.querySelector('.section');
+        const settled = article.querySelector('.settled-particles');
+        const dots = packets.map((packet, i) => {
+          const dot = document.createElementNS(ns, 'circle');
+          dot.setAttribute('cx', fmt(packet.x)); dot.setAttribute('cy', fmt(packet.y)); dot.setAttribute('r', '1.8'); dot.setAttribute('fill', '#925a35'); dot.dataset.packet = i; settled.append(dot); return dot;
+        });
+        const original = Array.from({length: ny}, (_, row) => {
+          const y = 90 + row * step; return [20 + (y - 90) / 210 * 320, 42 + depth(y) * 1.5];
+        });
+        const bedPath = 'M' + original.map((p) => p.map(fmt).join(',')).join('L') + 'L340,125 L20,125Z';
+        section.querySelector('.original-bed').setAttribute('d', bedPath);
+        panels.push({ article, plan, section, dots, original });
+      }
+      for (let stage = 0; stage < 3; stage++) createPanel(stage);
+      function route(packet, progress) {
+        const p = clamp(progress, 0, 1);
+        const slow = p < 0.6 ? p : 0.6 + 0.4 * (1 - Math.pow(1 - (p - 0.6) / 0.4, 2));
+        const y = lerp(12, packet.y, slow);
+        const spread = smooth((y - 82) / Math.max(1, packet.y - 82));
+        const x = lerp(180, packet.x, spread) + (packet.side ? packet.side * 25 * Math.sin(Math.PI * spread) : 0);
+        return { x, y };
+      }
+      function renderPanel(panel, stage, t) {
+        const { field } = fieldAt(t);
+        panel.plan.querySelector('.deposit-outline').setAttribute('d', contour(field, 2.5));
+        panel.plan.querySelector('.submerged-terrain').setAttribute('d', contour(field, 8));
+        panel.plan.querySelector('.emerged-terrain').setAttribute('d', contour(field, 0, true));
+        panel.dots.forEach((dot, i) => dot.setAttribute('opacity', fmt(packetProgress(packets[i], t) * 0.85)));
+        const split = smooth((t - 20) / 1.5);
+        const incoming = '<path d="M180,20 C175,43 180,64 180,92"/>';
+        const fan = `<g opacity="${fmt(1 - split)}"><path d="M179,101 C169,131 150,162 132,202"/><path d="M180,105 C182,145 180,171 180,206"/><path d="M181,101 C193,131 214,162 228,202"/></g>`;
+        const branches = `<g opacity="${fmt(split)}"><path d="M180,96 C174,115 119,132 116,172 C114,186 115,192 119,201"/><path d="M180,96 C186,115 241,132 244,172 C246,186 245,192 241,201"/></g>`;
+        panel.plan.querySelector('.flow-lines').innerHTML = incoming + fan + branches;
+        panel.plan.querySelector('.bar-callout').setAttribute('opacity', t > 8 ? '1' : '0');
+        panel.plan.querySelector('.branch-callout').setAttribute('opacity', fmt(split));
+        const surface = Array.from({length: ny}, (_, row) => [panel.original[row][0], panel.original[row][1] - field[row * nx + 36] * 1.5]);
+        const surfacePath = 'M' + surface.map((p) => p.map(fmt).join(',')).join('L');
+        const sedimentPath = surfacePath + 'L' + [...panel.original].reverse().map((p) => p.map(fmt).join(',')).join('L') + 'Z';
+        panel.section.querySelector('.section-deposits').setAttribute('d', sedimentPath);
+        panel.section.querySelector('.section-land').setAttribute('d', sedimentPath);
+        panel.section.querySelector('.bed-profile').setAttribute('d', surfacePath);
+        let moving = '', settling = '';
+        for (let i = 0; i < packets.length; i++) {
+          const packet = packets[i];
+          const travel = (t - packet.due + 2.1) / 2.1;
+          if (travel < 0 || travel >= 1) continue;
+          const position = route(packet, travel);
+          moving += `<circle cx="${fmt(position.x)}" cy="${fmt(position.y)}" r="2.2" fill="#925a35"/>`;
+          if (packet.side === 0 && Math.abs(packet.x - 180) < 13) {
+            const col = 36, row = clamp(Math.round((packet.y - 90) / step), 0, ny - 1);
+            const landing = 42 + (depth(packet.y) - terrain[i][row * nx + col]) * 1.5;
+            const sx = 20 + clamp((position.y - 90) / 210, 0, 1) * 320;
+            const descent = smooth((travel - 0.65) / 0.35);
+            const sy = lerp(50, Math.max(22, landing), descent);
+            settling += `<circle cx="${fmt(sx)}" cy="${fmt(sy)}" r="2.1" fill="#925a35"/>`;
+          }
+        }
+        panel.plan.querySelector('.moving-particles').innerHTML = moving;
+        panel.section.querySelector('.settling-particles').innerHTML = settling;
+        const active = time >= stage * 10 && (time < (stage + 1) * 10 || stage === 2 && time === totalTime);
+        panel.article.classList.toggle('is-active', active);
+        panel.article.querySelector('.status').textContent = time >= (stage + 1) * 10 ? words[lang].complete : time < stage * 10 ? words[lang].inherited : playing ? words[lang].running : time === 0 ? words[lang].ready : words[lang].paused;
+      }
+      function announce(kind) { $('announcement').textContent = words[lang][kind]; }
+      function render() {
+        panels.forEach((panel, stage) => renderPanel(panel, stage, clamp(time, stage * 10, (stage + 1) * 10)));
+        $('progress').value = String(Math.round(time * 10));
+        const stage = Math.min(2, Math.floor(time / 10));
+        $('progress').setAttribute('aria-valuetext', words[lang].headings[stage] + (time === 0 ? ': ' + words[lang].start : time === totalTime ? ': ' + words[lang].end : ''));
+        $('play').textContent = time >= totalTime ? words[lang].replay : words[lang].play;
+        $('play').disabled = playing;
+        $('pause').disabled = !playing;
+        if (stage !== lastStage && playing) $('announcement').textContent = words[lang].headings[stage] + ' · ' + words[lang].running;
+        lastStage = stage;
+      }
+      function stop() { playing = false; cancelAnimationFrame(frame); lastTimestamp = null; }
+      function tick(timestamp) {
+        if (!playing) return;
+        if (lastTimestamp !== null) time = Math.min(totalTime, time + Math.min(0.1, (timestamp - lastTimestamp) / 1000) * Number($('speed').value));
+        lastTimestamp = timestamp;
+        if (timestamp - lastDraw > 45 || time >= totalTime) { render(); lastDraw = timestamp; }
+        if (time >= totalTime) { stop(); render(); announce('announceEnd'); }
+        else frame = requestAnimationFrame(tick);
+      }
+      function setLanguage() {
+        document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+        document.title = words[lang].title + ' · AI4LA';
+        document.querySelectorAll('[data-i18n]').forEach((element) => { element.textContent = words[lang][element.dataset.i18n]; });
+        panels.forEach((panel, stage) => {
+          panel.article.querySelector('h2').textContent = words[lang].headings[stage];
+          panel.article.querySelector('.explanation').textContent = words[lang].descriptions[stage];
+          panel.article.querySelector('.plan-label').textContent = words[lang].plan;
+          panel.article.querySelector('.section-label').textContent = words[lang].section;
+          panel.plan.querySelector('title').textContent = words[lang].headings[stage];
+          panel.plan.querySelector('desc').textContent = words[lang].svgDescriptions[stage];
+          panel.section.querySelector('title').textContent = words[lang].section + ': ' + words[lang].headings[stage];
+          for (const [selector, key] of [['.river-label','river'],['.sea-label','sea'],['.bar-label','bar'],['.branch-label','branches']]) panel.plan.querySelector(selector).textContent = words[lang][key];
+          panel.section.querySelector('.water-label').textContent = words[lang].seaLevel;
+          panel.section.querySelector('.bed-label').textContent = words[lang].bed;
+        });
+        document.querySelector('.legend').setAttribute('aria-label', lang === 'zh' ? '图例' : 'Legend');
+        $('language').textContent = lang === 'zh' ? 'English' : '中文';
+        $('language').setAttribute('aria-label', lang === 'zh' ? 'Switch to English' : '切换为中文');
+        lastStage = -1; render(); announce(time >= totalTime ? 'announceEnd' : playing ? 'announceReady' : time === 0 ? 'announceReady' : 'announcePause');
+      }
+      $('play').addEventListener('click', () => { if (playing) return; if (time >= totalTime) time = 0; playing = true; lastTimestamp = null; lastStage = -1; render(); frame = requestAnimationFrame(tick); });
+      $('pause').addEventListener('click', () => { stop(); render(); announce('announcePause'); });
+      $('reset').addEventListener('click', () => { stop(); time = 0; lastStage = -1; render(); announce('announceReady'); });
+      $('progress').addEventListener('input', () => { stop(); time = Number($('progress').value) / 10; render(); announce(time >= totalTime ? 'announceEnd' : 'announcePause'); });
+      $('language').addEventListener('click', () => { lang = lang === 'zh' ? 'en' : 'zh'; setLanguage(); });
+      document.addEventListener('visibilitychange', () => { if (document.hidden && playing) { stop(); render(); announce('announcePause'); } });
+      setLanguage();
+      const reportHeight = () => {
+        if (window.parent !== window) window.parent.postMessage({ type: 'ai4la-delta-height', height: Math.ceil(document.querySelector('main').getBoundingClientRect().height) }, '*');
+      };
+      window.addEventListener('message', (event) => {
+        if (event.source === window.parent && event.data?.type === 'ai4la-delta-measure') reportHeight();
+      });
+      if (typeof ResizeObserver !== 'undefined') new ResizeObserver(reportHeight).observe(document.querySelector('main'));
+      reportHeight();
+    })();
+  </script>
+</body>
+</html>

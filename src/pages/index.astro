@@ -38,7 +38,7 @@ const latest = (await getCollection('articles'))
               <h3>{article.data.title}</h3>
               <p>{article.data.description}</p>
               <div class="featured-meta">
-                <time datetime={article.data.published.toISOString()}>{article.data.published.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</time>
+                <time datetime={article.data.published.toISOString()}>{article.data.publishedLabel || article.data.published.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</time>
                 <span aria-hidden="true">↗</span>
               </div>
             </a>

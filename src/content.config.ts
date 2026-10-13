@@ -8,6 +8,7 @@ const articles = defineCollection({
     description: z.string(),
     stage: z.enum(['research', 'analysis', 'concept', 'development', 'visualization', 'communication']),
     published: z.coerce.date(),
+    publishedLabel: z.string().optional(),
     updated: z.coerce.date().optional(),
     thumbnail: image().optional(),
     thumbnailAlt: z.string().optional(),
