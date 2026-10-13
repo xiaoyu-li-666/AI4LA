@@ -6,8 +6,9 @@ import ArticleCard from '../components/ArticleCard.astro';
 
 const latest = (await getCollection('articles'))
   .sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
-const initialArticles = latest.slice(0, 6);
-const remainingArticles = latest.slice(6);
+const initialCount = latest.length > 6 ? 6 : 3;
+const initialArticles = latest.slice(0, initialCount);
+const remainingArticles = latest.slice(initialCount);
 const batches = Array.from({ length: Math.ceil(remainingArticles.length / 3) }, (_, index) => remainingArticles.slice(index * 3, index * 3 + 3));
 ---
 <Base title="AI for Landscape Architecture" description="Practical articles on using AI throughout the landscape architecture design workflow." bodyClass="home-page">
