@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import { Image } from 'astro:assets';
+import founderPortrait from '../assets/people/xiaoyu-li.jpg';
+---
+<Base title="People" description="Meet the founder and co-founders of AI4LA.">
+  <div class="shell page-width people-page">
+    <header class="page-intro">
+      <p class="eyebrow">THE PEOPLE BEHIND AI4LA</p>
+      <h1>People<span class="period">.</span></h1>
+      <p>Meet the founder and co-founders of AI4LA.</p>
+    </header>
+
+    <section class="people-section" aria-labelledby="founder-heading">
+      <h2 class="people-role" id="founder-heading">Founder</h2>
+      <article class="founder-profile" aria-labelledby="founder-name">
+        <figure class="founder-portrait">
+          <Image src={founderPortrait} alt="Portrait of XIAOYU LI" width={235} height={256} format="webp" loading="eager" />
+        </figure>
+        <div class="person-info">
+          <h3 class="person-name" id="founder-name">XIAOYU LI</h3>
+          <p class="person-details">Ph.D. in Urban &amp; Regional Science<br />MLA</p>
+          <a class="person-email" href="mailto:lxy819457986@tamu.edu">lxy819457986@tamu.edu</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="people-section" aria-labelledby="cofounders-heading">
+      <h2 class="people-role" id="cofounders-heading">Co-founders</h2>
+      <div class="people-grid">
+        <article class="person-info" aria-labelledby="jingxi-name">
+          <h3 class="person-name" id="jingxi-name">Jingxi Peng</h3>
+          <p class="person-details">Lecturer<br />Texas A&amp;M University</p>
+          <a class="person-email" href="mailto:jingxipeng8@tamu.edu">jingxipeng8@tamu.edu</a>
+        </article>
+        <article class="person-info" aria-labelledby="yining-name">
+          <h3 class="person-name" id="yining-name">Yining Liu</h3>
+          <p class="person-details">Ph.D. student<br />Urban and Regional Science</p>
+          <a class="person-email" href="mailto:yiningliu610@tamu.edu">yiningliu610@tamu.edu</a>
+        </article>
+      </div>
+    </section>
+  </div>
+</Base>

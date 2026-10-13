@@ -2,7 +2,7 @@
 title: "Using AI to Turn Material Photos into Render Materials"
 description: "A practical workflow for turning a material image into aligned PBR maps and checking them in Blender."
 stage: visualization
-published: 2026-10-12
+published: 2026-08-25
 thumbnail: ../../assets/ai-pbr-materials/source-concrete.png
 thumbnailAlt: "An exposed concrete surface with formwork joints, circular holes, and mottled gray color."
 ---

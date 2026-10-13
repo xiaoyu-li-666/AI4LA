@@ -2,7 +2,7 @@
 title: "Controlled AI Editing in Landscape Architecture"
 description: "Changing selected tree foliage with masks, programmatic compositing, and pixel verification."
 stage: development
-published: 2026-10-11
+published: 2026-09-11
 thumbnail: ../../assets/controlled-ai-editing/final-result.png
 thumbnailAlt: "A landscape rendering with selected trees changed to crimson autumn foliage."
 ---

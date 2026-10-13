@@ -2,7 +2,7 @@
 title: "Using SNAP in Landscape Site Surveys"
 description: "Use point cloud segmentation to organize vegetation, buildings, and roads, and connect digital survey data with field investigation."
 stage: research
-published: 2026-10-12
+published: 2026-10-04
 thumbnail: ../../assets/snap-survey/tree-segmentation.png
 thumbnailAlt: "Conceptual point cloud illustration showing a tree candidate selected with a point prompt."
 ---

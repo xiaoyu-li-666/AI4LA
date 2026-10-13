@@ -30,6 +30,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
         <nav aria-label="Main navigation">
           <a href={path('/#workflow')}>Workflow</a>
           <a href={path('/articles/')}>Articles</a>
+          <a href={path('/people/')} aria-current={Astro.url.pathname === path('/people/') ? 'page' : undefined}>People</a>
           <a href={path('/about/')}>About</a>
         </nav>
       </div>

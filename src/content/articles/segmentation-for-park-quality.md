@@ -2,7 +2,7 @@
 title: "Using SAM 3 to measure landscape elements in park views"
 description: "A practical example of promptable segmentation for measuring visible landscape elements, with checks that keep image coverage separate from park quality."
 stage: analysis
-published: 2026-10-11
+published: 2026-07-30
 thumbnail: ../../assets/park-quality/tree-segmentation.png
 thumbnailAlt: "A park photograph with SAM 3 tree segmentation overlays and a binary mask."
 ---
