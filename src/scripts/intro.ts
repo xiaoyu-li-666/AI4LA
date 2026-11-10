@@ -138,7 +138,7 @@ export function setupIntro() {
       const radius = Math.max(0, Math.min(4, Math.round((particle.drawSize - .24) / .22)));
       inkBuckets[ink * 5 + radius].push(particle);
     }
-    context.fillStyle = '#161616';
+    context.fillStyle = '#ffffff';
     for (let index = 0; index < inkBuckets.length; index++) {
       const bucket = inkBuckets[index];
       if (!bucket.length) continue;
