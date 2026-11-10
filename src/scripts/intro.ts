@@ -3,8 +3,8 @@ import { createLandscape, projectLandscape, grainRandom, type LandscapePoint } f
 type Phase = 'scattered' | 'assembling' | 'ready' | 'leaving';
 type InkParticle = LandscapePoint & {
   depth: number;
-  x: number; y: number; drawSize: number; drawAlpha: number;
-  startX: number; startY: number; startSize: number;
+  x: number; y: number; drawSize: number; drawAlpha: number; drawTone: number;
+  startX: number; startY: number; startSize: number; startAlpha: number;
   targetX: number; targetY: number; targetSize: number; targetAlpha: number;
 };
 
@@ -46,16 +46,21 @@ export function setupIntro() {
   let touchY = 0;
   let returnFocus: HTMLElement | null = null;
   let particles: InkParticle[] = [];
-  const inkBuckets: InkParticle[][] = Array.from({ length: 40 }, () => []);
+  const inkPalette = ['#111111', '#050505', '#696969', '#bcbcbc', '#ffffff'];
+  const grainRadii = [.18, .27, .41, .61, .92, 1.38, 2.07, 3.1];
+  const alphaLevels = 8;
+  const bucketsPerTone = alphaLevels * grainRadii.length;
+  const inkBuckets: InkParticle[][] = Array.from({ length: inkPalette.length * bucketsPerTone }, () => []);
 
   // Sample a system font once: the logo stays crisp without a font or 3D download.
   const stencil = document.createElement('canvas');
   const ink = stencil.getContext('2d');
   if (!ink) { releaseBoot(); return; }
-  ink.font = '900 200px Arial, Helvetica, sans-serif';
+  const logoFont = `900 200px ${getComputedStyle(dialog).fontFamily}`;
+  ink.font = logoFont;
   stencil.width = Math.ceil(ink.measureText('AI4LA').width) + 12;
   stencil.height = 220;
-  ink.font = '900 200px Arial, Helvetica, sans-serif';
+  ink.font = logoFont;
   ink.textBaseline = 'top';
   ink.fillText('AI4LA', 0, 0);
   const pixels = ink.getImageData(0, 0, stencil.width, stencil.height).data;
@@ -98,8 +103,8 @@ export function setupIntro() {
       const particle: InkParticle = {
         ...sample,
         depth: (sample.u + 1.35) / 2.7 * .7 + sample.ribbon / 5 * .3,
-        x: 0, y: 0, drawSize: 0, drawAlpha: sample.alpha,
-        startX: 0, startY: 0, startSize: 0,
+        x: 0, y: 0, drawSize: 0, drawAlpha: sample.alpha, drawTone: sample.tone,
+        startX: 0, startY: 0, startSize: 0, startAlpha: sample.alpha,
         targetX: left + (point.x - minX + (grainRandom(index + 17) - .5) * .85) * unit,
         targetY: top + (point.y - minY + (grainRandom(index + 91) - .5) * .85) * unit,
         targetSize: Math.min(1.05, unit * (.14 + grainRandom(index + 57) * .08)),
@@ -110,7 +115,7 @@ export function setupIntro() {
     // Vertical fitting includes the skyline. Horizontal overscan is independent:
     // a short or narrow viewport must never add blank margins beside the ribbons.
     let yMin = Infinity, yMax = -Infinity;
-    for (const time of [0, 1.6, 3.2, 4.8, 6.4, 8]) {
+    for (const time of [0, 1.6, 3.2, 4.8, 6.4, 8, 9.6, 11.2, 12.8]) {
       for (const voxel of particles) {
         const point = projectLandscape(voxel, time);
         yMin = Math.min(yMin, point.y); yMax = Math.max(yMax, point.y);
@@ -125,36 +130,40 @@ export function setupIntro() {
   };
 
   const scatter = (voxel: InkParticle, now: number) => {
-    const time = (now - ambientStartedAt) * .00009;
+    const time = (now - ambientStartedAt) * .00014;
     const point = projectLandscape(voxel, time);
     voxel.x = terrainOffsetX + point.x * terrainScaleX;
     voxel.y = terrainOffsetY + point.y * terrainScaleY;
-    voxel.drawSize = grainSize * voxel.size;
-    voxel.drawAlpha = voxel.alpha;
+    const breath = voxel.kind === 'ribbon' ? Math.sin(time * 1.9 + voxel.u * 4 + voxel.ribbon) : 0;
+    voxel.drawSize = grainSize * voxel.size * (1 + breath * .22);
+    voxel.drawAlpha = voxel.alpha * (1 + breath * .12);
+    voxel.drawTone = voxel.tone;
   };
 
-  // Batch circular grains by ink strength and radius. There are no cube faces,
-  // strokes or per-particle save/restore calls, even in the dense urban bank.
+  // Paint the tonal ribbons first, then the fine landscape on top so pale
+  // ribbon highlights cannot erase the foreground crowns and facades.
   const drawGrains = () => {
     for (const bucket of inkBuckets) bucket.length = 0;
     for (const particle of particles) {
-      if (particle.x < -2 || particle.x > width + 2 || particle.y < -2 || particle.y > height + 2) continue;
-      const ink = Math.max(0, Math.min(7, Math.round(particle.drawAlpha * 9) - 1));
-      const radius = Math.max(0, Math.min(4, Math.round((particle.drawSize - .24) / .22)));
-      inkBuckets[ink * 5 + radius].push(particle);
+      if (particle.x < -4 || particle.x > width + 4 || particle.y < -4 || particle.y > height + 4) continue;
+      const ink = Math.max(0, Math.min(alphaLevels - 1, Math.round(particle.drawAlpha * alphaLevels) - 1));
+      const radius = Math.max(0, Math.min(grainRadii.length - 1, Math.round(Math.log2(Math.max(.18, particle.drawSize) / .18) * 1.7)));
+      inkBuckets[particle.drawTone * bucketsPerTone + ink * grainRadii.length + radius].push(particle);
     }
-    context.fillStyle = '#ffffff';
-    for (let index = 0; index < inkBuckets.length; index++) {
-      const bucket = inkBuckets[index];
-      if (!bucket.length) continue;
-      context.globalAlpha = (Math.floor(index / 5) + 1) / 9;
-      const radius = .24 + index % 5 * .22;
-      context.beginPath();
-      for (const particle of bucket) {
-        context.moveTo(particle.x + radius, particle.y);
-        context.arc(particle.x, particle.y, radius, 0, Math.PI * 2);
+    for (const tone of [1, 2, 3, 4, 0]) {
+      context.fillStyle = inkPalette[tone];
+      for (let index = 0; index < bucketsPerTone; index++) {
+        const bucket = inkBuckets[tone * bucketsPerTone + index];
+        if (!bucket.length) continue;
+        context.globalAlpha = (Math.floor(index / grainRadii.length) + 1) / alphaLevels;
+        const radius = grainRadii[index % grainRadii.length];
+        context.beginPath();
+        for (const particle of bucket) {
+          context.moveTo(particle.x + radius, particle.y);
+          context.arc(particle.x, particle.y, radius, 0, Math.PI * 2);
+        }
+        context.fill();
       }
-      context.fill();
     }
     context.globalAlpha = 1;
   };
@@ -191,10 +200,12 @@ export function setupIntro() {
         voxel.x = voxel.startX + (voxel.targetX - voxel.startX) * progress + voxel.v * 75 * arc;
         voxel.y = voxel.startY + (voxel.targetY - voxel.startY) * progress - voxel.u * 65 * arc;
         voxel.drawSize = voxel.startSize * (1 - progress) + voxel.targetSize * progress;
-        voxel.drawAlpha = voxel.alpha * (1 - progress) + voxel.targetAlpha * progress;
+        voxel.drawAlpha = voxel.startAlpha * (1 - progress) + voxel.targetAlpha * progress;
+        voxel.drawTone = Math.round(voxel.tone * (1 - progress));
       } else if (phase === 'ready') {
         voxel.x = voxel.targetX; voxel.y = voxel.targetY;
         voxel.drawSize = voxel.targetSize; voxel.drawAlpha = voxel.targetAlpha;
+        voxel.drawTone = 0;
       }
     }
     drawGrains();
@@ -223,6 +234,7 @@ export function setupIntro() {
         scatter(voxel, performance.now());
         voxel.startX = voxel.x; voxel.startY = voxel.y;
         voxel.startSize = voxel.drawSize;
+        voxel.startAlpha = voxel.drawAlpha;
       }
       startedAt = performance.now();
       setPhase('assembling');

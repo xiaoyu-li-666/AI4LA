@@ -32,41 +32,41 @@
 </script>
 
 <style is:inline>
-  html { background: #000; color-scheme: dark; }
+  html { background: #f7f7f7; color-scheme: light; }
   html[data-intro-boot="pending"] { overflow: hidden; }
-  html[data-intro-boot="pending"]::before { content: ''; position: fixed; inset: 0; z-index: 99; background: #000; }
+  html[data-intro-boot="pending"]::before { content: ''; position: fixed; inset: 0; z-index: 99; background: #f2f2f2; }
   html[data-intro-boot="pending"] body > :not([data-intro-splash]) { visibility: hidden; }
   html[data-intro-boot="pending"] [data-intro-splash] { display: block; }
 </style>
 
 <style is:inline>
-  .intro-splash { position: fixed; inset: 0; z-index: 100; width: 100vw; max-width: none; height: 100%; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; overflow: hidden; background: #000; color: #fff; opacity: 1; transition: opacity 260ms ease; }
-  .intro-splash::backdrop { background: #000; }
+  .intro-splash { position: fixed; inset: 0; z-index: 100; width: 100vw; max-width: none; height: 100%; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; overflow: hidden; background: #f2f2f2; color: #111; font-family: var(--font-sans, 'Avenir Next', Avenir, 'Segoe UI', Arial, sans-serif); opacity: 1; transition: opacity 260ms ease; }
+  .intro-splash::backdrop { background: #f2f2f2; }
   .intro-splash[data-phase="leaving"] { opacity: 0; pointer-events: none; }
   .splash-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .splash-topline,.splash-bottomline { position: absolute; z-index: 2; left: clamp(24px, 4vw, 64px); right: clamp(24px, 4vw, 64px); display: flex; align-items: center; justify-content: space-between; gap: 20px; pointer-events: none; }
   .splash-topline { top: max(28px, env(safe-area-inset-top)); }
   .splash-bottomline { bottom: max(32px, calc(env(safe-area-inset-bottom) + 20px)); align-items: end; }
-  .splash-mark { display: flex; align-items: center; gap: 11px; font: 600 14px Arial, sans-serif; letter-spacing: -.03em; }
-  .splash-skip { pointer-events: auto; border: 0; border-bottom: 1px solid #666; background: transparent; color: #fff; font: 12px Arial, sans-serif; padding: 10px 0; cursor: pointer; }
+  .splash-mark { display: flex; align-items: center; gap: 11px; font: 700 14px var(--font-sans, 'Avenir Next', Avenir, 'Segoe UI', Arial, sans-serif); letter-spacing: -.03em; }
+  .splash-skip { pointer-events: auto; border: 0; border-bottom: 1px solid #888; background: transparent; color: #444; font: 12px var(--font-sans, 'Avenir Next', Avenir, 'Segoe UI', Arial, sans-serif); padding: 10px 0; cursor: pointer; }
   .splash-skip span { margin-left: 18px; }
-  .splash-skip:hover { color: #fff; border-color: #fff; }
+  .splash-skip:hover { color: #111; border-color: #111; }
   .splash-stage { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; color: inherit; cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; }
-  .splash-stage:focus-visible { outline: 1px solid #fff; outline-offset: -8px; }
-  .splash-skip:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
+  .splash-stage:focus-visible { outline: 1px solid #111; outline-offset: -8px; }
+  .splash-skip:focus-visible { outline: 2px solid #111; outline-offset: 5px; }
   .splash-canvas { display: block; width: 100%; height: 100%; pointer-events: none; }
-  .splash-explore { position: absolute; left: var(--explore-x, 72%); top: var(--explore-y, 50%); display: flex; align-items: center; gap: 24px; transform: translate(0, calc(-50% + 10px)); opacity: 0; font: 400 clamp(14px, 1.2vw, 18px) Arial, sans-serif; white-space: nowrap; transition: opacity 300ms ease, transform 300ms ease; }
+  .splash-explore { position: absolute; left: var(--explore-x, 72%); top: var(--explore-y, 50%); display: flex; align-items: center; gap: 24px; transform: translate(0, calc(-50% + 10px)); opacity: 0; font: 400 clamp(14px, 1.2vw, 18px) var(--font-sans, 'Avenir Next', Avenir, 'Segoe UI', Arial, sans-serif); white-space: nowrap; transition: opacity 300ms ease, transform 300ms ease; }
   [data-phase="ready"] .splash-explore { opacity: 1; transform: translate(0, -50%); }
   .splash-explore-arrow { font-size: 28px; transition: transform 180ms ease; }
   [data-phase="ready"] .splash-stage:hover .splash-explore-arrow { transform: translate(3px, -3px); }
-  .splash-caption { margin: 0; font: 10px/1.6 Arial, sans-serif; letter-spacing: .13em; }
-  .splash-instruction { margin: 0; color: #fff; font: 12px/1.5 Arial, sans-serif; }
+  .splash-caption { margin: 0; color: #656565; font: 10px/1.6 var(--font-sans, 'Avenir Next', Avenir, 'Segoe UI', Arial, sans-serif); letter-spacing: .13em; }
+  .splash-instruction { margin: 0; color: #333; font: 12px/1.5 var(--font-sans, 'Avenir Next', Avenir, 'Segoe UI', Arial, sans-serif); }
   .splash-instruction-icon { display: inline-block; margin-left: 24px; }
   .splash-instruction .splash-arrow-ready { display: none; }
   [data-phase="ready"] .splash-instruction .splash-arrow-down { display: none; }
   [data-phase="ready"] .splash-instruction .splash-arrow-ready { display: inline-block; }
   [data-phase="assembling"] .splash-instruction-icon { visibility: hidden; }
-  .splash-sequence { color: #fff; font: 11px/1.5 'Courier New', monospace; }
+  .splash-sequence { color: #656565; font: 11px/1.5 var(--font-sans, 'Avenir Next', Avenir, 'Segoe UI', Arial, sans-serif); font-variant-numeric: tabular-nums; }
   @media (max-width: 650px) {
     .splash-topline { top: max(22px, env(safe-area-inset-top)); }
     .splash-bottomline { flex-wrap: wrap; gap: 26px 16px; }

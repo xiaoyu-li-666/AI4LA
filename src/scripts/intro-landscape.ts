@@ -2,7 +2,7 @@ export type LandscapePoint = {
   kind: 'ribbon' | 'tree' | 'mountain' | 'building';
   u: number; v: number; ribbon: number;
   localX: number; localY: number; localZ: number;
-  size: number; alpha: number; distance: number;
+  size: number; alpha: number; distance: number; tone: number;
 };
 
 export function grainRandom(seed: number) {
@@ -30,9 +30,10 @@ export function createLandscape(detail = 1): LandscapePoint[] {
   let seed = 1867;
   const random = () => grainRandom(seed++);
   const gaussian = () => Math.sqrt(-2 * Math.log(Math.max(.00001, random()))) * Math.cos(random() * Math.PI * 2);
-  const add = (kind: LandscapePoint['kind'], u: number, v: number, ribbon: number, x: number, y: number, z: number, distance: number, alpha: number, size = 1) => {
+  const add = (kind: LandscapePoint['kind'], u: number, v: number, ribbon: number, x: number, y: number, z: number, distance: number, alpha: number, size = 1, tone = 0) => {
     points.push({ kind, u, v, ribbon, localX: x, localY: y, localZ: z, distance,
-      alpha: Math.min(.88, alpha), size: size * (.45 + random() * .65) * (.55 + distance * .45) });
+      tone, alpha: Math.min(kind === 'ribbon' ? .98 : .88, alpha),
+      size: size * (.45 + random() * .65) * (.55 + distance * .45) });
   };
 
   // Correlated noise makes dense runs and pale pockets inside three ink sheets.
@@ -50,13 +51,19 @@ export function createLandscape(detail = 1): LandscapePoint[] {
       if (random() > (.035 + Math.pow(patch, 2) * 1.5) * core * (.2 + region * region * 1.4)) continue;
       const edge = .22 + .78 * core;
       const central = .68 + .32 * Math.exp(-u * u * 2.5);
+      // Broad tonal runs distinguish the moving sheets from the fine landscape.
+      // Independent grain noise leaves the building and mountain samples intact.
+      const light = inkNoise(u * 4.5 + ribbon * 8, cross * 28 + 17);
+      const tone = light < .34 ? 4 : light < .46 ? 3 : light < .58 ? 2 : 1;
+      const grain = grainRandom(i * 1.73 + ribbon * 23000);
+      const size = grain < .43 ? .38 : grain < .79 ? 1.25 : 3.4 + grain * .9;
       add('ribbon', u, (ribbon - 1) * .43 + cross, ribbon * 2,
         gaussian() * .004, 0, gaussian() * .006, distance,
-        (.25 + patch * .65) * edge * central * (.65 + region * .65), 1.05);
+        (.40 + patch * .75) * edge * central * (.8 + region * .4), size, tone);
       if (random() < .12) {
         add('ribbon', u, (ribbon - 1) * .43 + cross, ribbon * 2,
           gaussian() * .025, gaussian() * .035, gaussian() * .035,
-          distance, .10 + random() * .13, .57);
+          distance, .10 + random() * .13, .40, tone);
       }
     }
   }
@@ -145,26 +152,27 @@ export function createLandscape(detail = 1): LandscapePoint[] {
     }
   }
 
-  // Pale far crowns and dense near foliage with particulate trunks and branches.
+  // Three distinct silhouettes: upright towers, tiered firs and full oak crowns.
+  // Taller crown proportions compensate for the landscape's shallow projection.
   const trees = [
-    {u:.43,v:-.40,scale:.55,distance:.22,form:'slender'},
-    {u:.67,v:-.44,scale:.62,distance:.22,form:'umbrella'},
-    {u:.93,v:-.38,scale:.60,distance:.24,form:'conifer'},
-    {u:.46,v:.34,scale:1.03,distance:.94,form:'spreading'},
-    {u:.70,v:.43,scale:1.14,distance:1,form:'umbrella'},
-    {u:.97,v:.29,scale:.88,distance:.93,form:'slender'},
-    {u:1.17,v:.30,scale:.92,distance:.95,form:'conifer'},
+    {u:.43,v:-.40,scale:.62,distance:.22,form:'tower'},
+    {u:.67,v:-.44,scale:.68,distance:.22,form:'oak'},
+    {u:.93,v:-.38,scale:.64,distance:.24,form:'fir'},
+    {u:.39,v:.34,scale:1.32,distance:.94,form:'oak'},
+    {u:.65,v:.43,scale:1.36,distance:1,form:'fir'},
+    {u:.87,v:.29,scale:1.20,distance:.93,form:'tower'},
+    {u:1.06,v:.30,scale:1.15,distance:.95,form:'oak'},
   ];
   for (const {u, v, scale, distance, form} of trees) {
-    const crownWidth = form === 'slender' ? .072 : form === 'umbrella' ? .14 : form === 'conifer' ? .082 : .112;
-    const crownHeight = form === 'slender' ? .105 : form === 'umbrella' ? .052 : form === 'conifer' ? .13 : .078;
-    const crownCenter = form === 'umbrella' ? .31 : form === 'conifer' ? .29 : .26;
-    const trunkHeight = form === 'umbrella' ? .29 : .235;
+    const crownWidth = form === 'tower' ? .067 : form === 'fir' ? .105 : .13;
+    const crownHeight = form === 'tower' ? .22 : form === 'fir' ? .28 : .25;
+    const crownCenter = form === 'oak' ? .40 : form === 'fir' ? .37 : .34;
+    const trunkHeight = form === 'oak' ? .31 : .49;
     for (let i = 0; i < 170 * detail; i++) {
       const t = random();
       const branch = i % 4;
       const split = Math.max(0, t - .47);
-      const x = (branch - 1.5) * split * .065 * scale + gaussian() * .0025;
+      const x = (branch - 1.5) * split * (form === 'oak' ? .10 : .025) * scale + gaussian() * .0025;
       add('tree', u, v, 4, x, gaussian() * .002, t * trunkHeight * scale,
         distance, .27 + distance * .44, .63);
     }
@@ -175,9 +183,13 @@ export function createLandscape(detail = 1): LandscapePoint[] {
       const radius = x * x / Math.pow(crownWidth * scale, 2) + z * z / Math.pow(crownHeight * scale, 2);
       const patch = inkNoise(x * 70 + u * 19, z * 95 + v * 23);
       const t = (z / (crownHeight * scale) + 1) / 2;
-      const coneWidth = crownWidth * scale * (1 - t) * (.82 + .18 * Math.cos(t * Math.PI * 6));
-      const edge = form === 'conifer' ? 1 - Math.abs(x) / Math.max(.001, coneWidth) + (patch - .5) * .3
-        : 1 - radius + (patch - .5) * .65 + (form === 'spreading' ? Math.sin(Math.atan2(z, x) * 4 + u * 5) * .13 : 0);
+      const normalizedX = Math.abs(x) / (crownWidth * scale);
+      const firWidth = (1 - t) * (.72 + .28 * (.5 + .5 * Math.cos(t * Math.PI * 10)));
+      const towerWidth = Math.pow(Math.sin(t * Math.PI), .6) * (.7 + .3 * t);
+      const angle = Math.atan2(z / crownHeight, x / crownWidth);
+      const edge = form === 'fir' ? firWidth - normalizedX + (patch - .5) * .12
+        : form === 'tower' ? towerWidth - normalizedX + (patch - .5) * .12
+        : 1 - radius + (patch - .5) * .35 + Math.sin(angle * 5 + u * 5) * .15 + Math.sin(angle * 9 + v) * .07;
       if (edge < 0 || random() > .11 + patch * .83) continue;
       add('tree', u, v, 4, x, gaussian() * .018,
         (crownCenter * scale) + z, distance, .16 + distance * .44 + patch * .17, .83);
@@ -189,10 +201,21 @@ export function createLandscape(detail = 1): LandscapePoint[] {
 export function projectLandscape(point: LandscapePoint, time: number) {
   const { u, v, ribbon } = point;
   const x = u * 1.35 + point.localX;
-  const y = v + .20 * Math.sin(u * 2.8 + time * .45)
-    + .055 * Math.sin(u * 5.4 + ribbon * .16 - time * .3) + point.localY;
-  const z = .15 * Math.sin(u * 3.7 - ribbon * .43 + time)
-    + .055 * Math.sin(u * 6.4 + ribbon * .25 - time * .7) + point.localZ;
+  const sweep = Math.sin(u * 2.8);
+  const ripple = Math.sin(u * 5.4 + ribbon * .16);
+  const lift = Math.sin(u * 3.7 - ribbon * .43);
+  const fold = Math.sin(u * 6.4 + ribbon * .25);
+  let y = v + .20 * sweep + .055 * ripple + point.localY;
+  let z = .15 * lift + .055 * fold + point.localZ;
+
+  // Only the ribbons move; buildings, trees and ridges use fixed positions.
+  if (point.kind === 'ribbon') {
+    const motionGain = 2.5;
+    y += motionGain * (.20 * (Math.sin(u * 2.8 + time * .45) - sweep)
+      + .055 * (Math.sin(u * 5.4 + ribbon * .16 - time * .3) - ripple));
+    z += motionGain * (.15 * (Math.sin(u * 3.7 - ribbon * .43 + time) - lift)
+      + .055 * (Math.sin(u * 6.4 + ribbon * .25 - time * .7) - fold));
+  }
   return { x: x * .93 + y * .27, y: y * .54 - z * .95 - u * .055 };
 }
 
