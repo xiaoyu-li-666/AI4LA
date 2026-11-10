@@ -10,6 +10,7 @@ const articles = defineCollection({
     published: z.coerce.date(),
     publishedLabel: z.string().optional(),
     updated: z.coerce.date().optional(),
+    pinnedOrder: z.number().int().positive().optional(),
     thumbnail: image().optional(),
     thumbnailAlt: z.string().optional(),
   }),

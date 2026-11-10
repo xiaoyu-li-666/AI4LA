@@ -2,6 +2,7 @@
 title: "Building an Editable Landscape Model with Codex and Rhino MCP"
 description: "Build and revise an editable Rhino garden through Codex and Rhino MCP, with recorded runtimes for paths, planting, seating, and NURBS terrain."
 stage: development
+pinnedOrder: 2
 published: 2026-11-07
 thumbnail: ../../assets/rhino-mcp-landscape-workflow/final-ai-render.webp
 thumbnailAlt: "AI rendering of a garden with winding paths, planted mounds, trees, curved wooden seating, and a planted retaining wall."

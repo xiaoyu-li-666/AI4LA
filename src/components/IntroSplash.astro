@@ -1,0 +1,62 @@
+<dialog class="intro-splash" data-intro-splash aria-labelledby="splash-title" data-phase="scattered">
+  <h2 class="splash-sr-only" id="splash-title">AI4LA — AI for Landscape Architecture</h2>
+  <div class="splash-topline">
+    <span class="splash-mark" aria-hidden="true">
+      <svg width="22" height="25" viewBox="0 0 22 25" fill="none"><path d="m11 1 10 6v11l-10 6-10-6V7L11 1Z" stroke="currentColor" /><path d="m1 7 10 6 10-6M11 13v11" stroke="currentColor" /></svg>
+      AI4LA
+    </span>
+    <button class="splash-skip" data-intro-skip type="button">Skip intro <span aria-hidden="true">↗</span></button>
+  </div>
+  <button class="splash-stage" data-intro-stage type="button" aria-label="Assemble AI4LA. Click, scroll, or press Enter.">
+    <canvas class="splash-canvas" data-intro-canvas aria-hidden="true"></canvas>
+    <span class="splash-explore">click to explore <span class="splash-explore-arrow" aria-hidden="true">↗</span></span>
+  </button>
+  <div class="splash-bottomline">
+    <p class="splash-caption">AI FOR<br />LANDSCAPE ARCHITECTURE</p>
+    <p class="splash-instruction" data-intro-instruction>Click anywhere or scroll to assemble <span aria-hidden="true">↓</span></p>
+    <span class="splash-sequence" data-intro-sequence aria-hidden="true">01 / 02</span>
+  </div>
+  <p class="splash-sr-only" data-intro-status role="status" aria-live="polite"></p>
+</dialog>
+
+<script>
+  import { setupIntro } from '../scripts/intro';
+  setupIntro();
+</script>
+
+<style is:inline>
+  .intro-splash { position: fixed; inset: 0; z-index: 100; width: 100vw; max-width: none; height: 100%; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; overflow: hidden; background: #fafaf8; color: #161616; opacity: 1; transition: opacity 260ms ease; }
+  .intro-splash::backdrop { background: #fafaf8; }
+  .intro-splash[data-phase="leaving"] { opacity: 0; pointer-events: none; }
+  .splash-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .splash-topline,.splash-bottomline { position: absolute; z-index: 2; left: clamp(24px, 4vw, 64px); right: clamp(24px, 4vw, 64px); display: flex; align-items: center; justify-content: space-between; gap: 20px; pointer-events: none; }
+  .splash-topline { top: max(28px, env(safe-area-inset-top)); }
+  .splash-bottomline { bottom: max(32px, calc(env(safe-area-inset-bottom) + 20px)); align-items: end; }
+  .splash-mark { display: flex; align-items: center; gap: 11px; font: 600 14px Arial, sans-serif; letter-spacing: -.03em; }
+  .splash-skip { pointer-events: auto; border: 0; border-bottom: 1px solid #bdbdb8; background: transparent; color: #555; font: 12px Arial, sans-serif; padding: 10px 0; cursor: pointer; }
+  .splash-skip span { margin-left: 18px; }
+  .splash-skip:hover { color: #161616; border-color: #161616; }
+  .splash-stage { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; color: inherit; cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; }
+  .splash-stage:focus-visible { outline: 1px solid #999; outline-offset: -8px; }
+  .splash-skip:focus-visible { outline: 2px solid #161616; outline-offset: 5px; }
+  .splash-canvas { display: block; width: 100%; height: 100%; pointer-events: none; }
+  .splash-explore { position: absolute; left: var(--explore-x, 72%); top: var(--explore-y, 50%); display: flex; align-items: center; gap: 24px; transform: translate(0, calc(-50% + 10px)); opacity: 0; font: 400 clamp(14px, 1.2vw, 18px) Arial, sans-serif; white-space: nowrap; transition: opacity 300ms ease, transform 300ms ease; }
+  [data-phase="ready"] .splash-explore { opacity: 1; transform: translate(0, -50%); }
+  .splash-explore-arrow { font-size: 28px; transition: transform 180ms ease; }
+  [data-phase="ready"] .splash-stage:hover .splash-explore-arrow { transform: translate(3px, -3px); }
+  .splash-caption { margin: 0; font: 10px/1.6 Arial, sans-serif; letter-spacing: .13em; }
+  .splash-instruction { margin: 0; color: #666; font: 12px/1.5 Arial, sans-serif; }
+  .splash-instruction span { display: inline-block; margin-left: 24px; }
+  .splash-sequence { color: #777; font: 11px/1.5 'Courier New', monospace; }
+  @media (max-width: 650px) {
+    .splash-topline { top: max(22px, env(safe-area-inset-top)); }
+    .splash-bottomline { flex-wrap: wrap; gap: 26px 16px; }
+    .splash-caption { font-size: 9px; }
+    .splash-instruction { order: -1; flex-basis: 100%; text-align: center; font-size: 11px; }
+    .splash-explore { transform: translate(-50%, 0); }
+    [data-phase="ready"] .splash-explore { transform: translate(-50%, -10px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .intro-splash,.splash-explore,.splash-explore-arrow { transition: none; }
+  }
+</style>

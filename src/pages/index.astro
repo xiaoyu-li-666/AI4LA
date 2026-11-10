@@ -3,8 +3,12 @@ import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import { stages, path } from '../data/stages';
 import ArticleCard from '../components/ArticleCard.astro';
+import IntroSplash from '../components/IntroSplash.astro';
 
-const latest = (await getCollection('articles'))
+const articles = await getCollection('articles');
+const pinned = articles.filter((article) => article.data.pinnedOrder)
+  .sort((a, b) => a.data.pinnedOrder! - b.data.pinnedOrder!);
+const latest = articles.filter((article) => !article.data.pinnedOrder)
   .sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
 const initialCount = latest.length > 6 ? 6 : 3;
 const initialArticles = latest.slice(0, initialCount);
@@ -12,6 +16,7 @@ const remainingArticles = latest.slice(initialCount);
 const batches = Array.from({ length: Math.ceil(remainingArticles.length / 3) }, (_, index) => remainingArticles.slice(index * 3, index * 3 + 3));
 ---
 <Base title="AI for Landscape Architecture" description="Practical articles on using AI throughout the landscape architecture design workflow." bodyClass="home-page">
+  <IntroSplash />
   <div class="shell">
     <section class="intro" aria-labelledby="intro-heading">
       <img class="hero-scenes" src={path('/images/home-scenes.svg')} alt="" aria-hidden="true" width="900" height="400" fetchpriority="high" />
@@ -19,7 +24,20 @@ const batches = Array.from({ length: Math.ceil(remainingArticles.length / 3) }, 
       <h1 id="intro-heading">AI for<br /><em>Landscape<br />Architecture.</em></h1>
       <div class="intro-bottom">
         <p>Practical ways to use AI across the design process, from reading a site to presenting a proposal.</p>
-        <a class="text-link" href="#latest">Read the latest <span aria-hidden="true">↘</span></a>
+        <div class="intro-links">
+          <a class="text-link" href="#pinned">Explore the articles <span aria-hidden="true">↘</span></a>
+          <button class="replay-intro" type="button" data-intro-replay hidden>Replay intro <span aria-hidden="true">↗</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pinned-section" id="pinned" aria-labelledby="pinned-heading">
+      <div class="section-head">
+        <h2 id="pinned-heading">Pinned articles</h2>
+        <span>Two ways to put AI to work</span>
+      </div>
+      <div class="pinned-grid">
+        {pinned.map((article) => <ArticleCard article={article} />)}
       </div>
     </section>
 

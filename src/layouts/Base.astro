@@ -1,5 +1,5 @@
 ---
-import '../styles/global.css';
+import globalStyles from '../styles/global.css?url';
 import { path } from '../data/stages';
 
 interface Props {
@@ -16,6 +16,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <link rel="stylesheet" href={globalStyles} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href={path('/favicon.svg')} />
     <title>{title} | AI4LA</title>

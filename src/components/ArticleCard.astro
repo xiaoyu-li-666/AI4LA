@@ -13,6 +13,7 @@ const { article } = Astro.props;
   <a class="featured-link" href={path(`/articles/${article.id}/`)}>
     <div class="article-thumbnail">
       <Image src={article.data.thumbnail || defaultThumbnail} alt={article.data.thumbnailAlt || `Illustration for ${article.data.title}`} width={640} height={400} loading="lazy" />
+      {article.data.pinnedOrder && <span class="article-pin"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m10 1 5 5-2 1-2 4-2-2-5 5-1-1 5-5-2-2 4-2 1-2Z" fill="currentColor" /></svg>Pinned</span>}
     </div>
     <span class="row-category">{stageById[article.data.stage].label}</span>
     <h3>{article.data.title}</h3>

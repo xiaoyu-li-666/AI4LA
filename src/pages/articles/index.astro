@@ -4,7 +4,8 @@ import { getCollection } from 'astro:content';
 import { stageById, path } from '../../data/stages';
 
 const articles = (await getCollection('articles'))
-  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
+  .sort((a, b) => (a.data.pinnedOrder ?? Number.MAX_SAFE_INTEGER) - (b.data.pinnedOrder ?? Number.MAX_SAFE_INTEGER)
+    || b.data.published.getTime() - a.data.published.getTime());
 ---
 <Base title="Articles" description="Articles on AI methods for landscape architecture, organized by design workflow.">
   <div class="shell page-width">
@@ -16,7 +17,7 @@ const articles = (await getCollection('articles'))
     <div class="article-list roomy">
       {articles.map((article) => (
         <a class="article-row" href={path(`/articles/${article.id}/`)}>
-          <span class="row-category">{stageById[article.data.stage].label}</span>
+          <span class="row-category">{article.data.pinnedOrder && <span class="archive-pin">Pinned ↗</span>}{stageById[article.data.stage].label}</span>
           <span class="row-title">{article.data.title}<small>{article.data.description}</small></span>
           <span class="row-arrow" aria-hidden="true">↗</span>
         </a>
