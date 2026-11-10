@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import { stages, path } from '../../data/stages';
+import Arrow from '../../components/Arrow.astro';
 
 export async function getStaticPaths() {
   const articles = await getCollection('articles');
@@ -21,7 +22,7 @@ const contributionHref = `mailto:lxy819457986@gmail.com?subject=${encodeURICompo
   <div class:list={['shell', 'page-width', 'workflow-page', { 'workflow-page--empty': articles.length === 0 }]}>
     {articles.length > 0 && <>
     <header class="page-intro">
-      <a class="breadcrumb" href={path('/#workflow')}>← All workflows</a>
+      <a class="breadcrumb" href={path('/#workflow')}><Arrow direction="left" /> All workflows</a>
       <p class="eyebrow">WORKFLOW / {stage.number}</p>
       <h1>{stage.label}<span class="period">.</span></h1>
       <p>{stage.description}</p>
@@ -32,14 +33,14 @@ const contributionHref = `mailto:lxy819457986@gmail.com?subject=${encodeURICompo
         <a class="article-row" href={path(`/articles/${article.id}/`)}>
           <span class="row-category">{article.data.published.toLocaleDateString('en-US', { year: 'numeric', month: 'short', timeZone: 'UTC' })}</span>
           <span class="row-title">{article.data.title}<small>{article.data.description}</small></span>
-          <span class="row-arrow" aria-hidden="true">↗</span>
+          <span class="row-arrow"><Arrow /></span>
         </a>
       ))}
     </div>
     </>}
     <div class="workflow-contribution">
       <a class="contribute-button" href={contributionHref}>
-        <span>contribute to this website</span><span aria-hidden="true">↗</span>
+        <span>contribute to this website</span><Arrow />
       </a>
     </div>
   </div>

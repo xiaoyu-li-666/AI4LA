@@ -62,7 +62,7 @@ Each map has a different job, but the joints and holes must stay in the same pla
 <thead><tr><th scope="col">Map</th><th scope="col">What it controls</th><th scope="col">What happened in this example</th></tr></thead>
 <tbody>
 <tr><td>🎨 Base Color</td><td>Surface color</td><td>Reduced broad lighting variation while preserving the concrete's mottling.</td></tr>
-<tr><td>↗ Normal</td><td>How small details catch light</td><td>Calculated from the same height field used for the joints, holes, and small pores.</td></tr>
+<tr><td><svg class="ui-arrow" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 19 19 5M5 5h14v14"/></svg> Normal</td><td>How small details catch light</td><td>Calculated from the same height field used for the joints, holes, and small pores.</td></tr>
 <tr><td>↕ Height</td><td>Relative surface relief</td><td>Kept the main wall flat and represented joints and holes as recesses.</td></tr>
 <tr><td>◐ Roughness</td><td>How sharp reflections appear</td><td>Started near 0.84, with small variations around surface features. These values were assumptions.</td></tr>
 <tr><td>◒ Ambient Occlusion</td><td>Approximate local shading in recesses</td><td>Estimated from the height field and used lightly in the material.</td></tr>

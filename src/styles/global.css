@@ -15,6 +15,7 @@ html { scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; color: var(--ink); background: var(--canvas); }
 html.intro-is-open { overflow: hidden; }
 a { color: inherit; }
+.ui-arrow { display: inline-block; flex-shrink: 0; vertical-align: -.12em; }
 a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 .skip { position: absolute; left: -9999px; top: 8px; z-index: 10; background: var(--canvas); padding: 10px; }
 .skip:focus { left: 8px; }
@@ -83,7 +84,7 @@ nav a:hover,.quiet-link:hover,.text-link:hover,.breadcrumb:hover,.footer-wrap a:
 .featured-link:hover h3 { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 .featured-link>p { color: var(--ink); font-size: .85rem; line-height: 1.6; margin: 0 0 25px; }
 .featured-meta { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 13px; margin-top: auto; color: var(--ink); font-size: .7rem; }
-.featured-meta>span { color: var(--ink); font-size: 1.1rem; }
+.featured-meta>.ui-arrow { color: var(--ink); font-size: 1.1rem; }
 .latest-loader { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
 .latest-status { margin: 0; color: var(--ink); font-size: .8rem; line-height: 1.5; }
 .latest-load-more { display: inline-flex; align-items: center; gap: 25px; min-height: 44px; padding: 11px 17px; border: 1px solid var(--line); background: var(--canvas); color: var(--ink); font: inherit; font-size: .82rem; cursor: pointer; }
@@ -96,7 +97,7 @@ nav a:hover,.quiet-link:hover,.text-link:hover,.breadcrumb:hover,.footer-wrap a:
 .more-articles { margin-top: 34px; }
 .more-articles .article-row { grid-template-columns: 130px 1fr 20px; gap: 15px; }
 .tile-top { display: flex; justify-content: space-between; gap: 10px; font-size: .75rem; color: var(--ink); text-transform: uppercase; letter-spacing: .07em; }
-.tile-top span:last-child { color: var(--ink); font-size: 1rem; }
+.tile-top>.ui-arrow { color: var(--ink); font-size: 1rem; }
 .tile-name { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.35rem,2.4vw,2rem); line-height: 1.1; letter-spacing: -.04em; }
 .article-list { border-top: 1px solid var(--line); }
 .article-row { display: grid; grid-template-columns: 185px 1fr 30px; gap: 25px; padding: 21px 2px; align-items: baseline; text-decoration: none; border-bottom: 1px solid var(--line); }

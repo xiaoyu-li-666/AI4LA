@@ -9,6 +9,8 @@ type InkParticle = LandscapePoint & {
 };
 
 export function setupIntro() {
+  const root = document.documentElement;
+  const releaseBoot = () => root.removeAttribute('data-intro-boot');
   const dialog = document.querySelector<HTMLDialogElement>('[data-intro-splash]');
   const canvas = dialog?.querySelector<HTMLCanvasElement>('[data-intro-canvas]');
   const stage = dialog?.querySelector<HTMLButtonElement>('[data-intro-stage]');
@@ -18,7 +20,10 @@ export function setupIntro() {
   const status = dialog?.querySelector<HTMLElement>('[data-intro-status]');
   const replay = document.querySelector<HTMLButtonElement>('[data-intro-replay]');
   const context = canvas?.getContext('2d');
-  if (!dialog || !canvas || !stage || !skip || !instruction || !sequence || !status || !context || !dialog.showModal) return;
+  if (!dialog || !canvas || !stage || !skip || !instruction || !sequence || !status || !context || !dialog.showModal) {
+    releaseBoot();
+    return;
+  }
 
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const seenKey = 'ai4la-intro-seen-v1';
@@ -46,7 +51,7 @@ export function setupIntro() {
   // Sample a system font once: the logo stays crisp without a font or 3D download.
   const stencil = document.createElement('canvas');
   const ink = stencil.getContext('2d');
-  if (!ink) return;
+  if (!ink) { releaseBoot(); return; }
   ink.font = '900 200px Arial, Helvetica, sans-serif';
   stencil.width = Math.ceil(ink.measureText('AI4LA').width) + 12;
   stencil.height = 220;
@@ -60,7 +65,7 @@ export function setupIntro() {
       if (pixels[(y * stencil.width + x) * 4 + 3] > 150) points.push({ x: x / 3, y: y / 3 });
     }
   }
-  if (!points.length) return;
+  if (!points.length) { releaseBoot(); return; }
   const minX = Math.min(...points.map((p) => p.x));
   const minY = Math.min(...points.map((p) => p.y));
   const columns = Math.max(...points.map((p) => p.x)) - minX + 1;
@@ -158,7 +163,7 @@ export function setupIntro() {
     setPhase('ready');
     readyAt = now;
     stage.setAttribute('aria-label', 'AI4LA. Click to explore the articles.');
-    instruction.innerHTML = 'A new perspective on landscape <span aria-hidden="true">↗</span>';
+    instruction.textContent = 'A new perspective on landscape';
     sequence.textContent = '02 / 02';
     status.textContent = 'AI4LA assembled. Click to explore, scroll again, or press Enter.';
   };
@@ -233,7 +238,7 @@ export function setupIntro() {
     returnFocus = isReplay ? replay : null;
     setPhase(reducedMotion.matches ? 'ready' : 'scattered');
     stage.setAttribute('aria-label', 'Assemble AI4LA. Click, scroll, or press Enter.');
-    instruction.innerHTML = 'Click anywhere or scroll to assemble <span aria-hidden="true">↓</span>';
+    instruction.textContent = 'Click anywhere or scroll to assemble';
     sequence.textContent = '01 / 02';
     status.textContent = '';
     lastWheel = 0;
@@ -243,7 +248,9 @@ export function setupIntro() {
     stage.focus({ preventScroll: true });
     layout();
     if (reducedMotion.matches) markReady(performance.now());
-    frame = requestAnimationFrame(paint);
+    // Draw the first scene synchronously before releasing the first-paint gate.
+    paint(performance.now());
+    releaseBoot();
   };
 
   stage.addEventListener('click', activate);
@@ -263,6 +270,7 @@ export function setupIntro() {
   }, { passive: false });
   const observer = new ResizeObserver(() => {
     if (!dialog.open || phase === 'leaving') return;
+    if (width === dialog.clientWidth && height === dialog.clientHeight) return;
     cancelAnimationFrame(frame);
     const wasAssembling = phase === 'assembling';
     if (wasAssembling) markReady(performance.now());
@@ -285,5 +293,7 @@ export function setupIntro() {
   let seen = false;
   try { seen = sessionStorage.getItem(seenKey) === '1'; } catch { /* Show the intro without requiring storage. */ }
   // Deep links go directly to the requested section. Browsing back never adds a gate.
-  if (!seen && !location.hash) open();
+  const bootSkipped = root.dataset.introBoot === 'skipped' || root.dataset.introBoot === 'expired';
+  if (!seen && !location.hash && !bootSkipped) open();
+  releaseBoot();
 }

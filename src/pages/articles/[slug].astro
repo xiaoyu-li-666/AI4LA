@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 import { stageById, path } from '../../data/stages';
+import Arrow from '../../components/Arrow.astro';
 
 export async function getStaticPaths() {
   const articles = await getCollection('articles');
@@ -15,7 +16,7 @@ const date = article.data.publishedLabel || article.data.published.toLocaleDateS
 <Base title={article.data.title} description={article.data.description}>
   <article class="shell article-page">
     <header class="article-header">
-      <a class="breadcrumb" href={path(`/workflow/${stage.id}/`)}>← {stage.label}</a>
+      <a class="breadcrumb" href={path(`/workflow/${stage.id}/`)}><Arrow direction="left" /> {stage.label}</a>
       <p class="eyebrow">{stage.number} / {stage.label.toUpperCase()}</p>
       <h1>{article.data.title}</h1>
       <p class="article-deck">{article.data.description}</p>
@@ -24,7 +25,7 @@ const date = article.data.publishedLabel || article.data.published.toLocaleDateS
     <div class="prose"><Content /></div>
     <div class="endnote">
       <span>End of article</span>
-      <a href={path(`/workflow/${stage.id}/`)}>More in {stage.label} <span aria-hidden="true">↗</span></a>
+      <a href={path(`/workflow/${stage.id}/`)}>More in {stage.label} <Arrow /></a>
     </div>
   </article>
 </Base>

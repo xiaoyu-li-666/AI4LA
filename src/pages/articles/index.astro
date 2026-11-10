@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import { stageById, path } from '../../data/stages';
+import Arrow from '../../components/Arrow.astro';
 
 const articles = (await getCollection('articles'))
   .sort((a, b) => (a.data.pinnedOrder ?? Number.MAX_SAFE_INTEGER) - (b.data.pinnedOrder ?? Number.MAX_SAFE_INTEGER)
@@ -17,9 +18,9 @@ const articles = (await getCollection('articles'))
     <div class="article-list roomy">
       {articles.map((article) => (
         <a class="article-row" href={path(`/articles/${article.id}/`)}>
-          <span class="row-category">{article.data.pinnedOrder && <span class="archive-pin">Pinned ↗</span>}{stageById[article.data.stage].label}</span>
+          <span class="row-category">{article.data.pinnedOrder && <span class="archive-pin">Pinned <Arrow /></span>}{stageById[article.data.stage].label}</span>
           <span class="row-title">{article.data.title}<small>{article.data.description}</small></span>
-          <span class="row-arrow" aria-hidden="true">↗</span>
+          <span class="row-arrow"><Arrow /></span>
         </a>
       ))}
     </div>
