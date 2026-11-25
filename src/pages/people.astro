@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { Image } from 'astro:assets';
 import founderPortrait from '../assets/people/xiaoyu-li.jpg';
+import { path } from '../data/stages';
 ---
 <Base title="People" description="Meet the founder and co-founders of AI4LA.">
   <div class="shell page-width people-page">
@@ -21,6 +22,7 @@ import founderPortrait from '../assets/people/xiaoyu-li.jpg';
           <h3 class="person-name" id="founder-name">XIAOYU LI</h3>
           <p class="person-details">Ph.D. in Urban &amp; Regional Science<br />MLA</p>
           <a class="person-email" href="mailto:lxy819457986@tamu.edu">lxy819457986@tamu.edu</a>
+          <p><a href={path('/people/xiaoyu-li/')}>Xiaoyu Li’s academic homepage</a></p>
         </div>
       </article>
     </section>
