@@ -25,6 +25,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href={path('/favicon.svg')} />
     <title>{title} | AI4LA</title>
+    <script
+      is:inline
+      defer
+      src="https://cloud.umami.is/script.js"
+      data-website-id="ba7be8c9-58c2-4555-899f-b6dc471a3ee2"
+      data-domains="ai4la.net,www.ai4la.net"
+    ></script>
   </head>
   <body class={bodyClass}>
     <slot name="intro" />
